@@ -1,0 +1,14 @@
+{% extends "pages/_base.html" %}
+
+{% block title %}Home{% endblock title %}
+
+{% block nav_link_home_status %}active{% endblock nav_link_home_status %}
+
+{% block content %}
+<h1 class="display">Home Page</h1>
+{% if user.is_authenticated %}
+<p>Welcome {{ user.username }} ({{ user.email }})</p>
+{% else %}
+<p class="alert alert-danger" role="alert">You are not authenticated.</p>
+{% endif %}
+{% endblock content %}
