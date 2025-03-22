@@ -40,8 +40,11 @@ INSTALLED_APPS = [
     # Third party
     'allauth',
     'allauth.account',
+    'crispy_forms',
+    'crispy_bootstrap5',
     # Local
     'pages.apps.PagesConfig',
+    'scheduler.apps.SchedulerConfig',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +64,7 @@ ROOT_URLCONF = 'website.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / 'templates' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,3 +150,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
+
+# crispy forms config
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"

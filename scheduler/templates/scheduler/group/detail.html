@@ -1,0 +1,14 @@
+{% extends "_base.html" %}
+
+{% block title %}{{ object.name }}{% endblock title %}
+
+{% block content %}
+<h1 class="display">{{ object.group_id }}</h1>
+{% with org=object.organization %}
+<a class="btn btn-primary" href="{% url "group_update" org_id=org.id group_id=object.group_id %}">Update</a>
+<a class="btn btn-danger" href="{% url "group_delete" org_id=org.id group_id=object.group_id %}">Delete</a>
+<p>Group ID: {{ object.group_id }}</p>
+<p>Size: {{ object.size }}</p>
+<p>Organization: {{ org.name }}</p>
+{% endwith %}
+{% endblock content %}

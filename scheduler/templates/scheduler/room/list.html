@@ -1,0 +1,15 @@
+{% extends "_base.html" %}
+
+{% block title %}Organizations{% endblock title %}
+
+{% block content %}
+<h1 class="display-3">Your Organizations</h1>
+<a class="btn btn-success" href="{% url "org_create" %}">Create Organization</a>
+<ul>
+{% for object in object_list %}
+    <li>
+        <a href="{% url "org_detail" object.id %}">{{ object.name }}</a>
+    </li>
+{% endfor %}
+</ul>
+{% endblock content %}

@@ -1,0 +1,11 @@
+{% extends "_base.html" %}
+
+{% block title %}{{ object.name }}{% endblock title %}
+
+{% block content %}
+<h1 class="display">{{ object.name }}</h1>
+<a class="btn btn-primary" href="{% url "org_update" object.id %}">Update</a>
+<a class="btn btn-danger" href="{% url "org_delete" object.id %}">Delete</a>
+<p>Days per week = {{ object.days_per_week }}</p>
+<p>Slots per day = {{ object.slots_per_day }}</p>
+{% endblock content %}

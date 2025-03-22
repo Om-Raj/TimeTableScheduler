@@ -1,0 +1,15 @@
+{% extends "_base.html" %}
+
+{% block title %}Groups | {{ organization.name }}{% endblock title %}
+
+{% block content %}
+<h1 class="display-3">Groups</h1>
+<a class="btn btn-success" href="{% url "group_create" org_id=organization.id %}">Create Group</a>
+<ul>
+{% for object in object_list %}
+    <li>
+        <a href="{% url "group_detail" org_id=organization.id group_id=object.group_id  %}">{{ object.group_id }}</a>
+    </li>
+{% endfor %}
+</ul>
+{% endblock content %}
