@@ -45,6 +45,13 @@ INSTALLED_APPS = [
     # Local
     'pages.apps.PagesConfig',
     'scheduler.apps.SchedulerConfig',
+    #our apps
+    "scheduler.organization",
+    "scheduler.room",
+    "scheduler.faculty",
+    "scheduler.group",
+    "scheduler.course",
+    "scheduler.timetable",
 ]
 
 MIDDLEWARE = [

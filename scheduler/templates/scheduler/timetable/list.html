@@ -1,14 +1,15 @@
 {% extends "_base.html" %}
 
-{% block title %}Organizations{% endblock title %}
+{% block title %}Timetable{% endblock title %}
 
 {% block content %}
-<h1 class="display-3">Your Organizations</h1>
-<a class="btn btn-success" href="{% url "org_create" %}">Create Organization</a>
+<h1 class="display-3">Your Timetable</h1>
+<a class="btn btn-success" href="{% url "timetable_create" org_id=object_list.0.organization.id %}">Create Timetable</a>
 <ul>
 {% for object in object_list %}
     <li>
-        <a href="{% url "org_detail" object.id %}">{{ object.name }}</a>
+        <a href="{% url "timetable_detail" org_id=object.organization.id pk=object.id %}">{{ object.organization.name }}</a>
+        <p>{{object.semester}}</p>
     </li>
 {% endfor %}
 </ul>

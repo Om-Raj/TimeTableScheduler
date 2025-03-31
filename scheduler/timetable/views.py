@@ -1,8 +1,8 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
-
-from .models import TimeTable
+from django.shortcuts import render, get_object_or_404
+from .models import TimeTable,Slot
 from scheduler.organization.models import Organization
 
 
@@ -30,6 +30,33 @@ class TimeTableListView(ListView):
     model = TimeTable
     template_name = 'scheduler/timetable/list.html'
 
+    def get_queryset(self):
+        """Filter timetables by organization ID from the URL."""
+        org_id = self.kwargs.get('org_id') 
+        #this is organization _, _ id
+        return TimeTable.objects.filter(organization__id=org_id)
+
+class SlotCreateView(CreateView):
+    model = Slot
+    fields=('date_time_slot', 'duration', 'room', 'faculty', 'course', 'group')
+    template_name = 'scheduler/slot/create.html'
+
+    def form_valid(self, form):
+        timetable_id = self.kwargs['timetable_id']
+        form.instance.time_table = get_object_or_404(TimeTable, id=timetable_id)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        """Redirect to the timetable detail view after successful form submission"""
+        return reverse_lazy('timetable_detail', kwargs={'org_id': self.kwargs['org_id'], 'pk': self.kwargs['timetable_id']})
+
+    
+    def get_context_data(self, **kwargs):
+        """Pass organization ID and timetable ID to the template context"""
+        context = super().get_context_data(**kwargs)
+        context['org_id'] = self.kwargs['org_id']
+        context['timetable_id'] = self.kwargs['timetable_id']
+        return context
 
 class TimeTableCreateView(CreateView):
     model = TimeTable
@@ -49,9 +76,13 @@ class TimeTableCreateView(CreateView):
 class TimeTableDetailView(DetailView):
     model = TimeTable
     template_name = 'scheduler/timetable/detail.html'
-
-    def get_object(self, queryset = None):
-        return get_timetable_object(self, queryset=queryset)
+    context_object_name = 'timetable'
+    
+    def get_context_data(self, **kwargs):
+        """Add slots related to this timetable to the context."""
+        context = super().get_context_data(**kwargs)
+        context['slots'] = Slot.objects.filter(time_table=self.object) 
+        return context
 
 
 class TimeTableDeleteView(DeleteView):

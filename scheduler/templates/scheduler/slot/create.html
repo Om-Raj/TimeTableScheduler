@@ -1,0 +1,16 @@
+{% extends "_base.html" %}
+
+{% block title %}Create Slot{% endblock %}
+
+{% block content %}
+<h1 class="display-4">Add Slot</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-primary">Create Slot</button>
+    <a href="{% url 'timetable_detail' org_id=org_id pk=timetable_id %}" class="btn btn-secondary">Back to Timetable</a>
+</form>
+
+{% endblock %}
