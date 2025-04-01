@@ -16,3 +16,6 @@ class Course(models.Model):
 
     class Meta:
         unique_together = ('organization', 'course_id')
+
+    def __str__(self):
+        return f"{self.organization.name} - {self.title}"

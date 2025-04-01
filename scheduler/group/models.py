@@ -10,3 +10,6 @@ class Group(models.Model):
     
     class Meta:
         unique_together = ('organization', 'group_id')
+
+    def __str__(self):
+        return f"{self.organization.name} - {self.group_id}"

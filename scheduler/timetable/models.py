@@ -13,10 +13,13 @@ class TimeTable(models.Model):
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
     year = models.PositiveSmallIntegerField(validators=(
         MinValueValidator(limit_value=1900, message='Year cannot be less than 1900'),
-        MinValueValidator(limit_value=2100, message='Year cannot be more than 2100'),
+        MaxValueValidator(limit_value=2100, message='Year cannot be more than 2100'),
     ))
     semester = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_created=True)
+
+    def __str__(self):
+        return f"{self.organization.name} - {self.year} - {self.semester}"
 
 
 class Slot(models.Model):
@@ -27,3 +30,6 @@ class Slot(models.Model):
     faculty = models.ForeignKey(to=Faculty, null=True, on_delete=models.SET_NULL)
     course = models.ForeignKey(to=Course, on_delete=models.CASCADE)
     group = models.ForeignKey(to=Group, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.date_time_slot} - {self.room} - {self.faculty} - {self.course} - {self.group}"

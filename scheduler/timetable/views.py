@@ -4,7 +4,7 @@ from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from .models import TimeTable,Slot
 from scheduler.organization.models import Organization
-
+from scheduler.room.models import Room
 
 # helper function to get timetable object
 def get_timetable_object(self, queryset = None):
@@ -40,6 +40,16 @@ class SlotCreateView(CreateView):
     model = Slot
     fields=('date_time_slot', 'duration', 'room', 'faculty', 'course', 'group')
     template_name = 'scheduler/slot/create.html'
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Filter the room field queryset to only show rooms with the current org_id
+        org_id = self.kwargs.get('org_id')
+        form.fields['room'].queryset = Room.objects.filter(organization__id=org_id)
+        form.fields['faculty'].queryset = form.fields['faculty'].queryset.filter(organization__id=org_id)
+        form.fields['group'].queryset = form.fields['group'].queryset.filter(organization__id=org_id)
+        form.fields['course'].queryset = form.fields['course'].queryset.filter(organization__id=org_id)
+        return form
 
     def form_valid(self, form):
         timetable_id = self.kwargs['timetable_id']

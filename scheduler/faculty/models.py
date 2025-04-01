@@ -13,3 +13,6 @@ class Faculty(models.Model):
 
     class Meta:
         unique_together = ('organization', 'faculty_id')
+
+    def __str__(self):
+        return f"{self.organization.name} - {self.name}"
