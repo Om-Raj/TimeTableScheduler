@@ -10,7 +10,7 @@
     {{ form.as_p }}
 
     <button type="submit" class="btn btn-primary">Create Slot</button>
-    <a href="{% url 'timetable_detail' org_id=org_id pk=timetable_id %}" class="btn btn-secondary">Back to Timetable</a>
+    <a href="{% url 'timetable_detail' org_id=org_id timetable_id=timetable_id %}" class="btn btn-secondary">Back to Timetable</a>
 </form>
 
 {% endblock %}

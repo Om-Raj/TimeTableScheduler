@@ -16,7 +16,7 @@ class TimeTable(models.Model):
         MaxValueValidator(limit_value=2100, message='Year cannot be more than 2100'),
     ))
     semester = models.CharField(max_length=20)
-    created_at = models.DateTimeField(auto_created=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.organization.name} - {self.year} - {self.semester}"

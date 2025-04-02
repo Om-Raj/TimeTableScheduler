@@ -22,7 +22,7 @@ def get_timetable_object(self, queryset = None):
 def get_timetable_success_url(self):
     return reverse('timetable_detail', kwargs={
         'org_id': self.object.organization.id,
-        'timetable_id': self.object.timetable_id,
+        'timetable_id': self.object.id,
     })
 
 
@@ -58,7 +58,7 @@ class SlotCreateView(CreateView):
 
     def get_success_url(self):
         """Redirect to the timetable detail view after successful form submission"""
-        return reverse_lazy('timetable_detail', kwargs={'org_id': self.kwargs['org_id'], 'pk': self.kwargs['timetable_id']})
+        return reverse_lazy('timetable_detail', kwargs={'org_id': self.kwargs['org_id'], 'timetable_id': self.kwargs['timetable_id']})
 
     
     def get_context_data(self, **kwargs):
@@ -87,7 +87,8 @@ class TimeTableDetailView(DetailView):
     model = TimeTable
     template_name = 'scheduler/timetable/detail.html'
     context_object_name = 'timetable'
-    
+    pk_url_kwarg = 'timetable_id'
+
     def get_context_data(self, **kwargs):
         """Add slots related to this timetable to the context."""
         context = super().get_context_data(**kwargs)

@@ -6,5 +6,5 @@ class DateTimeSlot(models.Model):
     time = models.PositiveSmallIntegerField()
 
     def __str__(self):
-        return f"{self.day} {self.time}"
+        return f"Day:{self.day} Time:{self.time}"
 

@@ -3,35 +3,49 @@
 {% block title %}{{ timetable.organization.name }}{% endblock title %}
 
 {% block content %}
-<h2>Time Table Details</h2>
-<p><strong>Year:</strong> {{ timetable.year }}</p>
-<p><strong>Semester:</strong> {{ timetable.semester }}</p>
+<div class="container mt-4">
+    <h2 class="display-5 text-center">{{ timetable.organization.name }} - Time Table</h2>
 
-<h3>Slots</h3>
-<table border="1">
-    <tr>
-        <th>Course</th>
-        <th>Faculty</th>
-        <th>Room</th>
-        <th>Duration</th>
-    </tr>
-    {% for slot in slots %}
-    <tr>
-        <td>{{ slot.course.course_id }}</td>
-        <td>{{ slot.faculty.name }}</td>
-        <td>{{ slot.room.room_id }}</td>
-        <td>{{ slot.duration }} hours</td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="4">No slots available for this timetable.</td>
-    </tr>
-    {% endfor %}
-</table>
+    <div class="card shadow-sm p-4 mt-4">
+        <h4 class="text-primary">Details</h4>
+        <p><strong>📅 Year:</strong> {{ timetable.year }}</p>
+        <p><strong>📖 Semester:</strong> {{ timetable.semester }}</p>
+    </div>
 
-<!-- Add Slot Button -->
-<a href="{% url 'slot_create' org_id=object.id timetable_id=timetable.id %}">
-  <button>Add Slot</button>
-</a>
+    <h3 class="mt-5">📌 Scheduled Slots</h3>
 
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>📚 Course</th>
+                    <th>👨‍🏫 Faculty</th>
+                    <th>🏢 Room</th>
+                    <th>⏳ Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in slots %}
+                <tr>
+                    <td>{{ slot.course.course_id }}</td>
+                    <td>{{ slot.faculty.name }}</td>
+                    <td>{{ slot.room.room_id }}</td>
+                    <td>{{ slot.duration }} hours</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No slots available for this timetable.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Slot Button -->
+    <div class="d-flex justify-content-end">
+        <a href="{% url 'slot_create' org_id=timetable.organization.id timetable_id=timetable.id %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add Slot
+        </a>
+    </div>
+</div>
 {% endblock content %}
