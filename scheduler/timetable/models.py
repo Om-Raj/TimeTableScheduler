@@ -11,6 +11,7 @@ from scheduler.group.models import Group
 
 class TimeTable(models.Model):
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
+    timetable_id = models.CharField(max_length=50)
     year = models.PositiveSmallIntegerField(validators=(
         MinValueValidator(limit_value=1900, message='Year cannot be less than 1900'),
         MaxValueValidator(limit_value=2100, message='Year cannot be more than 2100'),
@@ -21,7 +22,20 @@ class TimeTable(models.Model):
     def __str__(self):
         return f"{self.organization.name} - {self.year} - {self.semester}"
 
+    class Meta:
+        unique_together = ('organization', 'timetable_id')
 
+    # Method to generate a unique timetable_id
+    def save(self, *args, **kwargs):
+        if not self.timetable_id:
+            last_id = TimeTable.objects.filter(
+                organization=self.organization
+            ).count()
+            self.timetable_id = f"{self.year}-{self.semester}-{last_id}"
+        super().save(*args, **kwargs)
+
+
+# TODO: Should be Section instead
 class Slot(models.Model):
     time_table = models.ForeignKey(to=TimeTable, on_delete=models.CASCADE)
     date_time_slot = models.ForeignKey(to=DateTimeSlot, null=True, on_delete=models.SET_NULL)
@@ -33,3 +47,5 @@ class Slot(models.Model):
 
     def __str__(self):
         return f"{self.date_time_slot} - {self.room} - {self.faculty} - {self.course} - {self.group}"
+
+# TODO: Slot model will have [ Section(One-to-One), Room, DateTimeSlot ]
