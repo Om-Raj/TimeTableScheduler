@@ -3,9 +3,24 @@
 {% block title %}{{ object.name }}{% endblock title %}
 
 {% block content %}
-<h1 class="display">{{ object.name }}</h1>
-<a class="btn btn-primary" href="{% url "org_update" object.id %}">Update</a>
-<a class="btn btn-danger" href="{% url "org_delete" object.id %}">Delete</a>
-<p>Days per week = {{ object.days_per_week }}</p>
-<p>Slots per day = {{ object.slots_per_day }}</p>
+<div class="container mt-5">
+  <h1 class="display-4">{{ object.name }}</h1>
+  <p><strong>Faculty ID:</strong> {{ object.faculty_id }}</p>
+  <p><strong>Priority:</strong> {{ object.priority }}</p>
+  <div class="mt-4">
+    <h3>Slot Choices</h3>
+    <ul class="list-group">
+      {% for slot in object.slot_choices.all %}
+        <li class="list-group-item">{{ slot }}</li>
+      {% empty %}
+        <li class="list-group-item">No slot choices available.</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="mt-4">
+    <a class="btn btn-primary" href="{% url 'faculty_update' org_id=organization.id pk=object.id %}">Update</a>
+    <a class="btn btn-danger" href="{% url 'faculty_delete' org_id=organization.id pk=object.id %}">Delete</a>
+    <a class="btn btn-danger" href="{% url 'faculty_list' org_id=organization.id %}">Back to Faculty List</a>
+  </div>
+</div>
 {% endblock content %}

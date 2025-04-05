@@ -1,10 +1,10 @@
 {% extends "_base.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Delete Organization{% endblock title %}
+{% block title %}Delete Faculty{% endblock title %}
 
 {% block content %}
-<h1 class="display">Delete Organization</h1>
+<h1 class="display">Delete Faculty</h1>
 <p>Are you sure you want to delete {{ object.name }}?</p>
 <form method="post">
     {% csrf_token %}
