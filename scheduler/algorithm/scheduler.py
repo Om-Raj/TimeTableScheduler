@@ -49,6 +49,8 @@ def display(schedule, start_time):
     print(f"Fitness: {schedule.fitness}\t{time_diff}")
 
 class Scheduler():
+    
+
     def run(self, **kwargs):
         start_time = datetime.datetime.now()
 
