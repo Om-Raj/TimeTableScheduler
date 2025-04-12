@@ -2,7 +2,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse, reverse_lazy
 
 from .models import Organization
-
+from scheduler.models import DateTimeSlot
 
 class OrganizationListView(ListView):
     model = Organization
