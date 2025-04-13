@@ -3,9 +3,18 @@
 {% block title %}{{ object.name }}{% endblock title %}
 
 {% block content %}
-<h1 class="display">{{ object.name }}</h1>
-<a class="btn btn-primary" href="{% url "org_update" object.id %}">Update</a>
-<a class="btn btn-danger" href="{% url "org_delete" object.id %}">Delete</a>
-<p>Days per week = {{ object.days_per_week }}</p>
-<p>Slots per day = {{ object.slots_per_day }}</p>
+<h1 class="display">{{ object.title }} - {{object.course_id}}</h1>
+{% with org=object.organization %}
+<a class="btn btn-primary" href="{% url "course_update" org_id=org.id pk=object.course_id %}">Update</a>
+<a class="btn btn-danger" href="{% url "course_delete" org_id=org.id pk=object.course_id %}">Delete</a>
+<p>Room: 
+{% if object.rooms.exists %}
+  {% for room in object.rooms.all %}
+    {{ room.room_id }} (Capacity: {{ room.capacity }}, Lab: {{ room.is_lab }})
+  {% endfor %}
+{% else %}
+No rooms assigned.
+{% endif %}
+</p>
+{% endwith %}
 {% endblock content %}
