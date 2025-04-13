@@ -1,14 +1,13 @@
-from collections import defaultdict
-
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 
 from scheduler.organization.models import Organization
-from scheduler.timetable.tasks import run_scheduler_task
+from scheduler.room.models import Room
+from scheduler.algorithm.scheduler import Scheduler
 
-from .models import TimeTable, Section, Slot, ScheduleStatus
+from .models import TimeTable, Section
 from .forms import RunSchedulerForm
 
 # helper function to get timetable object
@@ -40,11 +39,6 @@ class TimeTableListView(ListView):
         org_id = self.kwargs.get('org_id') 
         #this is organization _, _ id
         return TimeTable.objects.filter(organization__id=org_id)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization'] = Organization.objects.get(id=self.kwargs['org_id'])
-        return context
 
 class SectionCreateView(CreateView):
     model = Section
@@ -81,6 +75,7 @@ class TimeTableCreateView(CreateView):
         return super().form_valid(form)
     
 
+
 class TimeTableDetailView(DetailView):
     model = TimeTable
     template_name = 'scheduler/timetable/detail.html'
@@ -90,19 +85,16 @@ class TimeTableDetailView(DetailView):
         return get_timetable_object(self, queryset=queryset)
 
     def get_context_data(self, **kwargs):
-        """Add section and status of schedule related to this timetable to the context."""
+        """Add slots related to this timetable to the context."""
         context = super().get_context_data(**kwargs)
         context['sections'] = Section.objects.filter(timetable=self.object)
-        context['status'] = ScheduleStatus.objects.filter(timetable=self.object).first()
         return context
 
 
 class TimeTableDeleteView(DeleteView):
     model = TimeTable
     template_name = 'scheduler/timetable/delete.html'
-
-    def get_success_url(self):
-        return reverse('timetable_list', kwargs={'org_id': self.kwargs['org_id']})
+    success_url = reverse_lazy('timetable_list')
 
     def get_object(self, queryset = None):
         return get_timetable_object(self, queryset=queryset)
@@ -121,7 +113,7 @@ class TimeTableUpdateView(UpdateView):
         return get_timetable_success_url(self)
 
 
-class TimeTableScheduleView(FormView):
+class TimetableScheduleView(FormView):
     form_class = RunSchedulerForm
     template_name = 'scheduler/timetable/schedule.html'
 
@@ -133,42 +125,10 @@ class TimeTableScheduleView(FormView):
     def form_valid(self, form):
         org_id = self.kwargs['org_id']
         timetable_id = self.kwargs['timetable_id']
-        task = run_scheduler_task.delay(org_id, timetable_id)
-
-        # Store task ID and mark status
-        timetable = TimeTable.objects.get(organization__id=org_id, timetable_id=timetable_id)
-        status, _ = ScheduleStatus.objects.get_or_create(timetable=timetable)
-        status.status = "PENDING"
-        status.task_id = task.id
-        status.save()
-
+        timetable = get_timetable_object(self, queryset=TimeTable.objects.all())
+        scheduler = Scheduler(org_id=org_id, timetable_id=timetable_id)
+        scheduler.run()
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('timetable_detail', kwargs={'org_id': self.kwargs['org_id'], 'timetable_id': self.kwargs['timetable_id']})
-
-
-class TimeTableResultView(DetailView):
-    model = TimeTable
-    template_name = 'scheduler/timetable/result.html'
-    context_object_name = 'timetable'
-
-    def get_object(self, queryset = None):
-        return get_timetable_object(self, queryset=queryset)
-
-    def get_context_data(self, **kwargs):
-        """Add slots related to this timetable to the context."""
-        context = super().get_context_data(**kwargs)
-        slots = Slot.objects.select_related('section__group', 'date_time_slot', 'room', 'section__course', 'section__faculty').filter(section__timetable=self.object)
-
-        group_slots = defaultdict(set)
-        for slot in slots:
-            group_slots[slot.section.group].add(slot)
-
-        group_slots_dict = {
-            group: sorted(list(slots), key=lambda s: (s.date_time_slot.day, s.date_time_slot.time))
-            for group, slots in group_slots.items()
-        }
-        context['group_slots'] = group_slots_dict
-
-        return context

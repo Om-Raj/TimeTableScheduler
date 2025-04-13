@@ -30,15 +30,6 @@ class RoomListView(ListView):
     model = Room
     template_name = 'scheduler/room/list.html'
 
-    def get_queryset(self):
-        org_id = self.kwargs['org_id']
-        return Room.objects.filter(organization__id=org_id)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization'] = Organization.objects.get(id=self.kwargs['org_id'])
-        return context
-
 
 class RoomCreateView(CreateView):
     model = Room
@@ -66,12 +57,10 @@ class RoomDetailView(DetailView):
 class RoomDeleteView(DeleteView):
     model = Room
     template_name = 'scheduler/room/delete.html'
-    
+    success_url = reverse_lazy('room_list')
+
     def get_object(self, queryset = None):
         return get_room_object(self, queryset=queryset)
-
-    def get_success_url(self):
-        return reverse('room_list', kwargs={'org_id': self.kwargs['org_id']})
 
 
 
@@ -79,9 +68,6 @@ class RoomUpdateView(UpdateView):
     model = Room
     template_name = 'scheduler/room/update.html'
     fields = ('room_id', 'is_lab', 'capacity')
-
-    def get_object(self, queryset = None):
-        return get_room_object(self, queryset=queryset)
 
     def get_success_url(self):
         return get_room_success_url(self)

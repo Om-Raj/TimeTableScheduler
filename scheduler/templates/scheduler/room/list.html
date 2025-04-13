@@ -1,14 +1,14 @@
 {% extends "_base.html" %}
 
-{% block title %}Rooms{% endblock title %}
+{% block title %}Organizations{% endblock title %}
 
 {% block content %}
-<h1 class="display-3"> {{ organization }} Rooms</h1>
-<a class="btn btn-success" href="{% url "room_create" org_id=organization.id %}">Create Room</a>
+<h1 class="display-3">Your Organizations</h1>
+<a class="btn btn-success" href="{% url "org_create" %}">Create Organization</a>
 <ul>
 {% for object in object_list %}
     <li>
-        <a href="{% url "room_detail" org_id=organization.id room_id=object.room_id %}"> {{ object.room_id }} </a>
+        <a href="{% url "org_detail" object.id %}">{{ object.name }}</a>
     </li>
 {% endfor %}
 </ul>

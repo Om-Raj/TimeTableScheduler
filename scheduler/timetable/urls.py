@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import TimeTableListView, TimeTableCreateView, TimeTableDetailView, TimeTableDeleteView, TimeTableUpdateView, SectionCreateView, TimeTableScheduleView, TimeTableResultView
+from .views import TimeTableListView, TimeTableCreateView, TimeTableDetailView, TimeTableDeleteView, TimeTableUpdateView, SectionCreateView, TimetableScheduleView
 
 
 urlpatterns = [
@@ -10,6 +10,5 @@ urlpatterns = [
     path('<slug:timetable_id>/delete', TimeTableDeleteView.as_view(), name='timetable_delete'),
     path('<slug:timetable_id>/update', TimeTableUpdateView.as_view(), name='timetable_update'),
     path('<slug:timetable_id>/add-section/', SectionCreateView.as_view(), name='section_create'),
-    path('<slug:timetable_id>/schedule/', TimeTableScheduleView.as_view(), name='timetable_schedule'),
-    path('<slug:timetable_id>/result/', TimeTableResultView.as_view(), name='timetable_result'),
+    path('<slug:timetable_id>/schedule/', TimetableScheduleView.as_view(), name='timetable_schedule'),
 ]

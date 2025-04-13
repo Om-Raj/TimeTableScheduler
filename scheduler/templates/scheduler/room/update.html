@@ -1,10 +1,10 @@
 {% extends "_base.html" %}
 {% load crispy_forms_tags %}
 
-{% block title %}Update Room{% endblock title %}
+{% block title %}Update Organization{% endblock title %}
 
 {% block content %}
-<h1 class="display">Update Room</h1>
+<h1 class="display">Update Organization</h1>
 <form method="post">
     {% csrf_token %}
     {{ form|crispy }}

@@ -104,5 +104,5 @@ class Scheduler():
 
         print(best.fitness)
 
-        utils.save_slots_to_db(best.slots, org_id)
+        # utils.save_slots_to_db(best.slots)
 
