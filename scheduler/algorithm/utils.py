@@ -137,7 +137,10 @@ def get_group_count_and_sections(org_id, timetable_id):
 
 
 def save_slots_to_db(slots, org_id):
-    """Save a list of Slot objects to the database as DB_Slot instances.
+    """Create or update Slot entries in the database.
+
+    - If *any* section already has a slot, update all existing sections' slots.
+    - Otherwise, create new slots for all.
 
     Args:
         slots: List of Slot objects with section, room, and datetime attributes
@@ -146,48 +149,76 @@ def save_slots_to_db(slots, org_id):
     Raises:
         ValueError: If any related object (Section, Room, DateTimeSlot) is not found
     """
-    with transaction.atomic():  # Ensure all-or-nothing save
-        # Pre-fetch related objects to minimize queries
+    with transaction.atomic():
         section_ids = [slot.section.id for slot in slots]
         room_ids = [slot.room.room_id for slot in slots]
-        datetime_keys = [(slot.datetime.day, slot.datetime.time) for slot in slots]
+        datetime_keys = {(slot.datetime.day, slot.datetime.time) for slot in slots}
 
-        # Bulk fetch sections
+        # Validate Sections
         sections = {s.id: s for s in DB_Section.objects.filter(id__in=section_ids)}
         missing_sections = set(section_ids) - set(sections.keys())
         if missing_sections:
             raise ValueError(f"Sections with IDs {missing_sections} do not exist")
 
-        # Bulk fetch rooms
-        rooms = {r.room_id: r for r in DB_Room.objects.filter(organization__id=org_id, room_id__in=room_ids)}
+        # Validate Rooms
+        rooms = {
+            r.room_id: r
+            for r in DB_Room.objects.filter(organization__id=org_id, room_id__in=room_ids)
+        }
         missing_rooms = set(room_ids) - set(rooms.keys())
         if missing_rooms:
             raise ValueError(f"Rooms with IDs {missing_rooms} do not exist for organization {org_id}")
 
-        # Bulk fetch date_time_slots
+        # Validate DateTimeSlots
         date_time_slots = {
-            (d.day, d.time): d 
+            (d.day, d.time): d
             for d in DB_DateTimeSlot.objects.filter(
-                organization__id=org_id, 
-                day__in=[k[0] for k in datetime_keys], 
+                organization__id=org_id,
+                day__in=[k[0] for k in datetime_keys],
                 time__in=[k[1] for k in datetime_keys]
             )
         }
-        missing_dts = set(datetime_keys) - set(date_time_slots.keys())
+        missing_dts = datetime_keys - set(date_time_slots.keys())
         if missing_dts:
             raise ValueError(f"DateTimeSlots {missing_dts} do not exist for organization {org_id}")
 
-        # Create DB_Slot objects
-        db_slots = [
-            DB_Slot(
-                section=sections[slot.section.id],
-                room=rooms[slot.room.room_id],
-                date_time_slot=date_time_slots[(slot.datetime.day, slot.datetime.time)]
+        # Check if any section already has a DB_Slot
+        existing_slot_map = {
+            slot.section.id: slot
+            for slot in DB_Slot.objects.filter(section__id__in=section_ids)
+        }
+        should_update = bool(existing_slot_map)  # If any slot exists
+
+        if should_update:
+            to_update = []
+            for slot in slots:
+                db_slot = existing_slot_map.get(slot.section.id)
+                if db_slot:
+                    db_slot.room = rooms[slot.room.room_id]
+                    db_slot.date_time_slot = date_time_slots[(slot.datetime.day, slot.datetime.time)]
+                    to_update.append(db_slot)
+                else:
+                    # Slot missing for an existing section: create it
+                    to_update.append(DB_Slot(
+                        section=sections[slot.section.id],
+                        room=rooms[slot.room.room_id],
+                        date_time_slot=date_time_slots[(slot.datetime.day, slot.datetime.time)]
+                    ))
+            DB_Slot.objects.bulk_update(
+                [s for s in to_update if s.id], ['room', 'date_time_slot']
             )
-            for slot in slots
-        ]
-
-        # Bulk save all slots
-        DB_Slot.objects.bulk_create(db_slots)
-
-    return db_slots  # Optional: return saved objects if needed
+            DB_Slot.objects.bulk_create(
+                [s for s in to_update if not s.id]
+            )
+            return to_update
+        else:
+            to_create = [
+                DB_Slot(
+                    section=sections[slot.section.id],
+                    room=rooms[slot.room.room_id],
+                    date_time_slot=date_time_slots[(slot.datetime.day, slot.datetime.time)]
+                )
+                for slot in slots
+            ]
+            DB_Slot.objects.bulk_create(to_create)
+            return to_create

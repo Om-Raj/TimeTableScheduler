@@ -1,11 +1,13 @@
 {% extends "_base.html" %}
 
-{% block title %}{{ object.name }}{% endblock title %}
+{% block title %} {{ object.room_id }}{% endblock title %}
 
 {% block content %}
-<h1 class="display">{{ object.name }}</h1>
-<a class="btn btn-primary" href="{% url "org_update" object.id %}">Update</a>
-<a class="btn btn-danger" href="{% url "org_delete" object.id %}">Delete</a>
-<p>Days per week = {{ object.days_per_week }}</p>
-<p>Slots per day = {{ object.slots_per_day }}</p>
+<h1 class="display">{{ object.room_id }}</h1>
+<a class="btn btn-primary" href="{% url "room_update" org_id=object.organization.id room_id=object.room_id%}">Update</a>
+<a class="btn btn-danger" href="{% url "room_delete" org_id=object.organization.id room_id=object.room_id %}">Delete</a> 
+<p>Capacity : {{ object.capacity }}</p>
+
+<p>Lab : {% if object.is_lab %}Yes{% else %}No{% endif %}</p>
+
 {% endblock content %}

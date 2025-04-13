@@ -29,7 +29,9 @@ class TimeTable(models.Model):
     def save(self, *args, **kwargs):
         if not self.timetable_id:
             last_id = TimeTable.objects.filter(
-                organization=self.organization
+                organization=self.organization,
+                year=self.year,
+                semester=self.semester
             ).count()
             self.timetable_id = f"{self.year}-{self.semester}-{last_id}"
         super().save(*args, **kwargs)
@@ -52,3 +54,20 @@ class Slot(models.Model):
 
     def __str__(self):
         return f"{self.date_time_slot} - {self.room} - {self.section}"
+
+
+class ScheduleStatus(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('RUNNING', 'Running'),
+        ('SUCCESS', 'Success'),
+        ('FAILURE', 'Failure'),
+    ]
+
+    timetable = models.OneToOneField(TimeTable, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    task_id = models.CharField(max_length=100, null=True, blank=True)
+    last_run_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.timetable.timetable_id} - {self.status}"
