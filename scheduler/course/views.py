@@ -5,12 +5,12 @@ from django.http import Http404
 from .models import Course
 from scheduler.organization.models import Organization
 
-# helper function to get group object
+# helper function to get course object
 def get_course_object(self, queryset = None):
     if queryset is None:
         queryset = self.get_queryset()
     org_id = self.kwargs['org_id']
-    course_id = self.kwargs['pk']
+    course_id = self.kwargs['course_id']
     try:
         return queryset.get(organization__id=org_id, course_id=course_id)
     except:
@@ -21,7 +21,7 @@ def get_course_object(self, queryset = None):
 def get_course_success_url(self):
     return reverse('course_detail', kwargs={
         'org_id': self.object.organization.id,
-        'pk': self.object.course_id,
+        'course_id': self.object.course_id,
     })
 
 class CourseListView(ListView):
