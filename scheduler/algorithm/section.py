@@ -1,7 +1,7 @@
 class Section:
 
-    def __init__(self, section_id, faculty, course, group, duration):
-        self.id = section_id
+    def __init__(self, id, faculty, course, group, duration):
+        self.id = id
         self.faculty = faculty
         self.course = course
         self.group = group

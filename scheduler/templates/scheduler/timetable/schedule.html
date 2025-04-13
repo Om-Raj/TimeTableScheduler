@@ -1,0 +1,15 @@
+{% extends "_base.html" %}
+{% block title %}Run Scheduler{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Run Scheduler for {{ timetable }}</h1>
+    <p>This will assign rooms and time slots to all sections in the timetable ({{ timetable.year }} - {{ timetable.semester }}).</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Run Scheduler</button>
+        <a href="{% url 'timetable_detail' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

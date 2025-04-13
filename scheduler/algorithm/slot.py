@@ -6,4 +6,4 @@ class Slot:
         self.section = section
 
     def __str__(self):
-        return f"[Day: {self.day}, Time: {self.time}, Duration: {self.section.duration}, Room: {self.room}, Section: {self.section}]"
+        return f"[{self.datetime}, Duration: {self.section.duration}, Room: {self.room}, Section: {self.section}]"

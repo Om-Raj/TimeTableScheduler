@@ -12,7 +12,9 @@
         <p><strong>📖 Semester:</strong> {{ timetable.semester }}</p>
     </div>
 
-    <h3 class="mt-5">📌 Scheduled Slots</h3>
+    <a class="btn btn-success" href="{% url "timetable_schedule" org_id=timetable.organization.id timetable_id=timetable.timetable_id %}">Run Scheduler</a>
+
+    <h3 class="mt-5">📌 Created Sections</h3>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover mt-3">
@@ -20,17 +22,17 @@
                 <tr>
                     <th>📚 Course</th>
                     <th>👨‍🏫 Faculty</th>
-                    <th>🏢 Room</th>
+                    <th>🏢 Group</th>
                     <th>⏳ Duration</th>
                 </tr>
             </thead>
             <tbody>
-                {% for slot in slots %}
+                {% for section in sections %}
                 <tr>
-                    <td>{{ slot.course.course_id }}</td>
-                    <td>{{ slot.faculty.name }}</td>
-                    <td>{{ slot.room.room_id }}</td>
-                    <td>{{ slot.duration }} hours</td>
+                    <td>{{ section.course.course_id }}</td>
+                    <td>{{ section.faculty.name }}</td>
+                    <td>{{ section.group.group_id }}</td>
+                    <td>{{ section.duration }} hours</td>
                 </tr>
                 {% empty %}
                 <tr>
@@ -41,10 +43,10 @@
         </table>
     </div>
 
-    <!-- Add Slot Button -->
+    <!-- Add Section Button -->
     <div class="d-flex justify-content-end">
-        <a href="{% url 'slot_create' org_id=timetable.organization.id timetable_id=timetable.id %}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Add Slot
+        <a href="{% url 'section_create' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add Section
         </a>
     </div>
 </div>

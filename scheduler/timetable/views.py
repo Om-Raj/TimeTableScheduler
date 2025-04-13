@@ -1,10 +1,14 @@
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404
-from .models import TimeTable,Slot
+
 from scheduler.organization.models import Organization
 from scheduler.room.models import Room
+from scheduler.algorithm.scheduler import Scheduler
+
+from .models import TimeTable, Section
+from .forms import RunSchedulerForm
 
 # helper function to get timetable object
 def get_timetable_object(self, queryset = None):
@@ -15,14 +19,14 @@ def get_timetable_object(self, queryset = None):
     try:
         return queryset.get(organization__id=org_id, timetable_id=timetable_id)
     except:
-        return Http404('TimeTable not found')
+        raise Http404('TimeTable not found')
 
 
 # helper function to get success url
 def get_timetable_success_url(self):
     return reverse('timetable_detail', kwargs={
         'org_id': self.object.organization.id,
-        'timetable_id': self.object.id,
+        'timetable_id': self.object.timetable_id,
     })
 
 
@@ -36,30 +40,19 @@ class TimeTableListView(ListView):
         #this is organization _, _ id
         return TimeTable.objects.filter(organization__id=org_id)
 
-class SlotCreateView(CreateView):
-    model = Slot
-    fields=('date_time_slot', 'duration', 'room', 'faculty', 'course', 'group')
-    template_name = 'scheduler/slot/create.html'
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        # Filter the room field queryset to only show rooms with the current org_id
-        org_id = self.kwargs.get('org_id')
-        form.fields['room'].queryset = Room.objects.filter(organization__id=org_id)
-        form.fields['faculty'].queryset = form.fields['faculty'].queryset.filter(organization__id=org_id)
-        form.fields['group'].queryset = form.fields['group'].queryset.filter(organization__id=org_id)
-        form.fields['course'].queryset = form.fields['course'].queryset.filter(organization__id=org_id)
-        return form
+class SectionCreateView(CreateView):
+    model = Section
+    fields = ('faculty', 'course', 'group', 'duration')
+    template_name = 'scheduler/section/create.html'
 
     def form_valid(self, form):
         timetable_id = self.kwargs['timetable_id']
-        form.instance.time_table = get_object_or_404(TimeTable, id=timetable_id)
+        timetable = get_object_or_404(TimeTable, timetable_id=timetable_id)
+        form.instance.timetable = timetable
         return super().form_valid(form)
 
     def get_success_url(self):
-        """Redirect to the timetable detail view after successful form submission"""
         return reverse_lazy('timetable_detail', kwargs={'org_id': self.kwargs['org_id'], 'timetable_id': self.kwargs['timetable_id']})
-
     
     def get_context_data(self, **kwargs):
         """Pass organization ID and timetable ID to the template context"""
@@ -87,12 +80,14 @@ class TimeTableDetailView(DetailView):
     model = TimeTable
     template_name = 'scheduler/timetable/detail.html'
     context_object_name = 'timetable'
-    pk_url_kwarg = 'timetable_id'
+
+    def get_object(self, queryset = None):
+        return get_timetable_object(self, queryset=queryset)
 
     def get_context_data(self, **kwargs):
         """Add slots related to this timetable to the context."""
         context = super().get_context_data(**kwargs)
-        context['slots'] = Slot.objects.filter(time_table=self.object) 
+        context['sections'] = Section.objects.filter(timetable=self.object)
         return context
 
 
@@ -111,5 +106,29 @@ class TimeTableUpdateView(UpdateView):
     template_name = 'scheduler/timetable/update.html'
     fields = ('year', 'semester')
 
+    def get_object(self, queryset = None):
+        return get_timetable_object(self, queryset=queryset)
+
     def get_success_url(self):
         return get_timetable_success_url(self)
+
+
+class TimetableScheduleView(FormView):
+    form_class = RunSchedulerForm
+    template_name = 'scheduler/timetable/schedule.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['timetable'] = get_timetable_object(self, queryset=TimeTable.objects.all())
+        return context
+
+    def form_valid(self, form):
+        org_id = self.kwargs['org_id']
+        timetable_id = self.kwargs['timetable_id']
+        timetable = get_timetable_object(self, queryset=TimeTable.objects.all())
+        scheduler = Scheduler(org_id=org_id, timetable_id=timetable_id)
+        scheduler.run()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('timetable_detail', kwargs={'org_id': self.kwargs['org_id'], 'timetable_id': self.kwargs['timetable_id']})

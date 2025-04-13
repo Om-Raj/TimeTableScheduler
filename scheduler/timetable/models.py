@@ -11,7 +11,7 @@ from scheduler.group.models import Group
 
 class TimeTable(models.Model):
     organization = models.ForeignKey(to=Organization, on_delete=models.CASCADE)
-    timetable_id = models.CharField(max_length=50, default='0')
+    timetable_id = models.CharField(max_length=50)
     year = models.PositiveSmallIntegerField(validators=(
         MinValueValidator(limit_value=1900, message='Year cannot be less than 1900'),
         MaxValueValidator(limit_value=2100, message='Year cannot be more than 2100'),
@@ -46,7 +46,7 @@ class Section(models.Model):
         return f"{self.course} - {self.group} - {self.faculty}"
 
 class Slot(models.Model):
-    section = models.OneToOneField(to=Section, on_delete=models.CASCADE, default=None)
+    section = models.OneToOneField(to=Section, on_delete=models.CASCADE)
     room = models.ForeignKey(to=Room, null=True, on_delete=models.SET_NULL)
     date_time_slot = models.ForeignKey(to=DateTimeSlot, null=True, on_delete=models.SET_NULL)
 

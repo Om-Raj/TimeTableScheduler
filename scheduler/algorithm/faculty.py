@@ -13,4 +13,4 @@ class Faculty:
 
 
     def __str__(self):
-        return f"{self.faculty_id}"
+        return f"{self.faculty_id} choices: { [str(slot) for slot in self.slot_choices] }"

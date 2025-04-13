@@ -1,9 +1,12 @@
+import random
+
 from django.db import transaction
 
 from scheduler.timetable.models import TimeTable, Slot as DB_Slot, Section as DB_Section
 from scheduler.organization.models import Organization
 from scheduler.models import DateTimeSlot as DB_DateTimeSlot
 from scheduler.room.models import Room as DB_Room
+from scheduler.faculty.models import Faculty as DB_Faculty
 
 from .course import Course
 from .date_time_slot import DateTimeSlot
@@ -12,6 +15,11 @@ from .group import Group
 from .room import Room
 from .section import Section
 
+
+def generate_random_slot(days_per_week, slots_per_day):
+    day = random.randrange(0, days_per_week)
+    time = random.randrange(0, slots_per_day)
+    return DateTimeSlot(day, time)
 
 
 def get_days_and_slots(org_id):
@@ -66,8 +74,42 @@ def get_group_object(group):
     return Group(group.group_id, group.size)
 
 
-def get_sections(org_id, timetable_id):
-    """Fetch and convert Section db objects to Section object list"""
+def get_rooms(org_id):
+    """Fetch and convert Room db objects to Room object list"""
+    try:
+        rooms = DB_Room.objects.filter(
+            organization__id=org_id 
+        )
+
+        room_list = [
+            get_room_object(room)
+            for room in rooms
+        ]
+        return room_list
+    except Room.DoesNotExist:
+        raise ValueError(f"No rooms in organization {org_id}")
+
+
+def get_faculties(org_id):
+    """Fetch and convert Faculty db objects to Faculty object list"""
+    try:
+        faculties = DB_Faculty.objects.filter(
+            organization__id=org_id
+        )
+
+        faculty_list = [
+            get_faculty_object(faculty)
+            for faculty in faculties
+        ]
+        return faculty_list
+    except Faculty.DoesNotExist:
+        raise ValueError(f"No faculties for organization {org_id}")
+
+
+
+
+def get_group_count_and_sections(org_id, timetable_id):
+    """Fetch group count and convert Section db objects to Section object list"""
     try:
         timetable = TimeTable.objects.get(
             organization__id=org_id, 
@@ -88,7 +130,8 @@ def get_sections(org_id, timetable_id):
             )
             for section in sections
         ]
-        return section_list
+        groups = {section.group.group_id for section in section_list}
+        return len(groups), section_list
     except TimeTable.DoesNotExist:
         raise ValueError(f"TimeTable with id {timetable_id} for organization {org_id} not found")
 
@@ -99,7 +142,6 @@ def save_slots_to_db(slots, org_id):
     Args:
         slots: List of Slot objects with section, room, and datetime attributes
         org_id: Organization ID
-        timetable_id: Timetable ID (unused in original, included for context)
 
     Raises:
         ValueError: If any related object (Section, Room, DateTimeSlot) is not found
@@ -117,7 +159,7 @@ def save_slots_to_db(slots, org_id):
             raise ValueError(f"Sections with IDs {missing_sections} do not exist")
 
         # Bulk fetch rooms
-        rooms = {r.room_id: r for r in DB_Room.objects.filter(org_id=org_id, room_id__in=room_ids)}
+        rooms = {r.room_id: r for r in DB_Room.objects.filter(organization__id=org_id, room_id__in=room_ids)}
         missing_rooms = set(room_ids) - set(rooms.keys())
         if missing_rooms:
             raise ValueError(f"Rooms with IDs {missing_rooms} do not exist for organization {org_id}")
@@ -126,7 +168,7 @@ def save_slots_to_db(slots, org_id):
         date_time_slots = {
             (d.day, d.time): d 
             for d in DB_DateTimeSlot.objects.filter(
-                org_id=org_id, 
+                organization__id=org_id, 
                 day__in=[k[0] for k in datetime_keys], 
                 time__in=[k[1] for k in datetime_keys]
             )

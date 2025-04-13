@@ -3,45 +3,51 @@ import random
 
 from scheduler.timetable.models import TimeTable
 
-import genetic
-import utils
-from fitness import Fitness, get_fitness
-from slot import Slot
+import scheduler.algorithm.genetic as genetic
+import scheduler.algorithm.utils as utils
+from scheduler.algorithm.fitness import Fitness, get_fitness
+from scheduler.algorithm.slot import Slot
+from scheduler.algorithm.date_time_slot import DateTimeSlot
 
 
-def create(sections, slots_per_day):
+def create(sections, slots_per_day, room_list):
     slots = []
     for section in sections:
         preferred_slot = random.choice(section.faculty.slot_choices)
         # Overflow of section outside the available hours
-        time_overflow = max((preferred_slot['time'] + section.duration) - slots_per_day, 0)
+        time_overflow = max((preferred_slot.time + section.duration) - slots_per_day, 0)
         offset = random.randrange(time_overflow, section.duration)
-        time = preferred_slot['time'] - offset
-        slots.append(Slot(preferred_slot['day'],
-                          time,
-                          section.course.room_id if section.course.room_id else random.choice(input.room_list)
-                          , section))
+        time = preferred_slot.time - offset
+        slots.append(
+            Slot(
+                DateTimeSlot(preferred_slot.day, time),
+                random.choice(section.course.rooms) if section.course.rooms else random.choice(room_list),
+                section
+            )
+        )
     return slots
 
 
-def mutate(slots, slots_per_day):
+def mutate(slots, days_per_week, slots_per_day, room_list):
     slot = random.choice(slots)
     if random.random() < 0.5:
         preferred_slot = random.choice(slot.section.faculty.slot_choices)
-        slot.day = preferred_slot['day']
+        day = preferred_slot.day
         # Overflow of section outside the available hours
-        time_overflow = max((preferred_slot['time'] + slot.section.duration) - slots_per_day, 0)
+        time_overflow = max((preferred_slot.time + slot.section.duration) - slots_per_day, 0)
         offset = random.randrange(time_overflow, slot.section.duration)
-        slot.time = preferred_slot['time'] - offset
-        slot.room = slot.section.course.room_id if slot.section.course.room_id else random.choice(input.room_list)
+        time = preferred_slot.time - offset
+        slot.datetime = DateTimeSlot(day, time)
+        slot.room = random.choice(slot.section.course.rooms) if slot.section.course.rooms else random.choice(room_list)
     else:
-        random_slot = utils.generate_slot_choices(1)[0]
-        slot.day = random_slot['day']
+        random_slot = utils.generate_random_slot(days_per_week, slots_per_day)
+        day = random_slot.day
         # Overflow of section outside the available hours
-        time_overflow = max((random_slot['time'] + slot.section.duration) - slots_per_day, 0)
+        time_overflow = max((random_slot.time + slot.section.duration) - slots_per_day, 0)
         offset = random.randrange(time_overflow, slot.section.duration)
-        slot.time = random_slot['time'] - offset
-        slot.room = slot.section.course.room_id if slot.section.course.room_id else random.choice(input.room_list)
+        time = random_slot.time - offset
+        slot.datetime = DateTimeSlot(day, time)
+        slot.room = random.choice(slot.section.course.rooms) if slot.section.course.rooms else random.choice(room_list)
 
 
 def display(schedule, start_time):
@@ -49,28 +55,42 @@ def display(schedule, start_time):
     print(f"Fitness: {schedule.fitness}\t{time_diff}")
 
 class Scheduler():
-    
+    def __init__(self, **kwargs):
+        self.org_id = kwargs['org_id']
+        self.timetable_id = kwargs['timetable_id']
 
-    def run(self, **kwargs):
+    def run(self):
         start_time = datetime.datetime.now()
 
-        org_id = kwargs['org_id']
-        tt_id = kwargs['tt_id']
+        org_id = self.org_id
+        timetable_id = self.timetable_id
 
         days_per_week, slots_per_day = utils.get_days_and_slots(org_id)
-        sections = utils.get_sections(org_id=org_id, timetable_id=tt_id)
+        room_list = utils.get_rooms(org_id=org_id)
+        faculty_list = utils.get_faculties(org_id=org_id)
+        group_count, sections = utils.get_group_count_and_sections(org_id=org_id, timetable_id=timetable_id)
+
+
+        print(f"Group Count: {group_count}")
+
+        for room in room_list:
+            print(f"{room}")
+
+        for faculty in faculty_list:
+            print(f"{faculty}")
 
         for section in sections:
-            print(section)
+            print(f"{section}")
+
 
         def fnGetFitness(slots):
-            return get_fitness(slots, days_per_week)
+            return get_fitness(slots, days_per_week, faculty_list, group_count)
 
         def fnCreate():
-            return create(sections, slots_per_day)
+            return create(sections, slots_per_day, room_list)
 
         def fnMutate(slots):
-            return mutate(slots, slots_per_day)
+            return mutate(slots, days_per_week, slots_per_day, room_list)
 
         def fnDisplay(schedule):
             display(schedule, start_time)
@@ -79,7 +99,7 @@ class Scheduler():
         scheduler = genetic.GeneticAlgorithm(fnGetFitness, fnCreate, fnMutate, fnDisplay, max_age)
 
         optimal_fitness = Fitness(0, 0, 0, 1, 1)
-        time_limit = 60
+        time_limit = 10
         best = scheduler.get_best(optimal_fitness, time_limit)
 
         print(best.fitness)

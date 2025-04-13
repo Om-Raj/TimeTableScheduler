@@ -36,7 +36,7 @@
                     <td>{{ object.year }}</td>
                     <td>{{ object.semester }}</td>
                     <td>
-                        <a href="{% url 'timetable_detail' org_id=object.organization.id timetable_id=object.id %}" 
+                        <a href="{% url 'timetable_detail' org_id=object.organization.id timetable_id=object.timetable_id %}" 
                            class="btn btn-primary btn-sm">
                             <i class="fas fa-eye"></i> View
                         </a>
