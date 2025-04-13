@@ -15,6 +15,21 @@
 
     <a class="btn btn-success" href="{% url "timetable_schedule" org_id=timetable.organization.id timetable_id=timetable.timetable_id %}">Run Scheduler</a>
 
+    <div class="alert mt-3 {% if status.status == 'RUNNING' or status.status == 'PENDING' %}alert-warning{% elif status.status == 'SUCCESS' %}alert-success{% else %}alert-danger{% endif %}">
+        <strong>Status:</strong>
+        {% if status %}
+            {% if status.status == 'RUNNING' or status.status == 'PENDING' %}
+                Scheduler is running...
+            {% elif status.status == 'SUCCESS' %}
+                Last run successful. <a href="{% url 'timetable_result' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="btn btn-sm btn-outline-primary">View Results</a>
+            {% else %}
+                Scheduler failed. Try again.
+            {% endif %}
+        {% else %}
+            No scheduler run yet.
+        {% endif %}
+    </div>
+
     <h3 class="mt-5">📌 Created Sections</h3>
 
     <div class="table-responsive">

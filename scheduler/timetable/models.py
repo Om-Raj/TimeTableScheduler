@@ -54,3 +54,20 @@ class Slot(models.Model):
 
     def __str__(self):
         return f"{self.date_time_slot} - {self.room} - {self.section}"
+
+
+class ScheduleStatus(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('RUNNING', 'Running'),
+        ('SUCCESS', 'Success'),
+        ('FAILURE', 'Failure'),
+    ]
+
+    timetable = models.OneToOneField(TimeTable, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    task_id = models.CharField(max_length=100, null=True, blank=True)
+    last_run_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.timetable.timetable_id} - {self.status}"
