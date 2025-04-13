@@ -39,6 +39,11 @@ class TimeTableListView(ListView):
         org_id = self.kwargs.get('org_id') 
         #this is organization _, _ id
         return TimeTable.objects.filter(organization__id=org_id)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organization'] = Organization.objects.get(id=self.kwargs['org_id'])
+        return context
 
 class SectionCreateView(CreateView):
     model = Section
@@ -94,7 +99,9 @@ class TimeTableDetailView(DetailView):
 class TimeTableDeleteView(DeleteView):
     model = TimeTable
     template_name = 'scheduler/timetable/delete.html'
-    success_url = reverse_lazy('timetable_list')
+
+    def get_success_url(self):
+        return reverse('timetable_list', kwargs={'org_id': self.kwargs['org_id']})
 
     def get_object(self, queryset = None):
         return get_timetable_object(self, queryset=queryset)

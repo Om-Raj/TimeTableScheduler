@@ -10,6 +10,7 @@
         <h4 class="text-primary">Details</h4>
         <p><strong>📅 Year:</strong> {{ timetable.year }}</p>
         <p><strong>📖 Semester:</strong> {{ timetable.semester }}</p>
+        <a class="btn btn-danger" href="{% url "timetable_delete" org_id=timetable.organization.id timetable_id=timetable.timetable_id %}">Delete Timetable</a>
     </div>
 
     <a class="btn btn-success" href="{% url "timetable_schedule" org_id=timetable.organization.id timetable_id=timetable.timetable_id %}">Run Scheduler</a>

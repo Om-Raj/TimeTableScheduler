@@ -29,7 +29,9 @@ class TimeTable(models.Model):
     def save(self, *args, **kwargs):
         if not self.timetable_id:
             last_id = TimeTable.objects.filter(
-                organization=self.organization
+                organization=self.organization,
+                year=self.year,
+                semester=self.semester
             ).count()
             self.timetable_id = f"{self.year}-{self.semester}-{last_id}"
         super().save(*args, **kwargs)
