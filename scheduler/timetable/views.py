@@ -3,7 +3,7 @@ from collections import defaultdict
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, FormView
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 
 from scheduler.organization.models import Organization
 from scheduler.timetable.tasks import run_scheduler_task
@@ -153,6 +153,9 @@ class TimeTableResultView(DetailView):
     template_name = 'scheduler/timetable/result.html'
     context_object_name = 'timetable'
 
+    def get_queryset(self):
+        return TimeTable.objects.select_related('organization')
+
     def get_object(self, queryset = None):
         return get_timetable_object(self, queryset=queryset)
 
@@ -162,13 +165,27 @@ class TimeTableResultView(DetailView):
         slots = Slot.objects.select_related('section__group', 'date_time_slot', 'room', 'section__course', 'section__faculty').filter(section__timetable=self.object)
 
         group_slots = defaultdict(set)
+        faculty_list = set()
         for slot in slots:
             group_slots[slot.section.group].add(slot)
+            faculty_list.add(slot.section.faculty)
 
-        group_slots_dict = {
-            group: sorted(list(slots), key=lambda s: (s.date_time_slot.day, s.date_time_slot.time))
-            for group, slots in group_slots.items()
-        }
-        context['group_slots'] = group_slots_dict
+        organization = context['timetable'].organization
+        DAYS = range(1, organization.days_per_week + 1)
+        TIME = range(1, organization.slots_per_day + 1)
+        group_timetable = {}
+
+        for group, slots in group_slots.items():
+            table = {day: {time: None for time in TIME} for day in DAYS}
+            for slot in slots:
+                day = slot.date_time_slot.day
+                time = slot.date_time_slot.time
+                table[day][time] = slot
+            group_timetable[group] = table
+
+        context['days'] = DAYS
+        context['time_slots'] = TIME
+        context['group_timetable'] = group_timetable
+        context['faculty_list'] = faculty_list
 
         return context
