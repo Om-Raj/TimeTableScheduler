@@ -17,8 +17,8 @@ from .section import Section
 
 
 def generate_random_slot(days_per_week, slots_per_day):
-    day = random.randrange(0, days_per_week)
-    time = random.randrange(0, slots_per_day)
+    day = random.randint(1, days_per_week)
+    time = random.randint(1, slots_per_day)
     return DateTimeSlot(day, time)
 
 

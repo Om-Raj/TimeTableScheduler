@@ -15,7 +15,7 @@ def create(sections, slots_per_day, room_list):
     for section in sections:
         preferred_slot = random.choice(section.faculty.slot_choices)
         # Overflow of section outside the available hours
-        time_overflow = max((preferred_slot.time + section.duration) - slots_per_day, 0)
+        time_overflow = max((preferred_slot.time + section.duration) - 1 - slots_per_day, 0) # 1 based indexing for time
         offset = random.randrange(time_overflow, section.duration)
         time = preferred_slot.time - offset
         slots.append(
@@ -34,7 +34,7 @@ def mutate(slots, days_per_week, slots_per_day, room_list):
         preferred_slot = random.choice(slot.section.faculty.slot_choices)
         day = preferred_slot.day
         # Overflow of section outside the available hours
-        time_overflow = max((preferred_slot.time + slot.section.duration) - slots_per_day, 0)
+        time_overflow = max((preferred_slot.time + slot.section.duration) - 1 - slots_per_day, 0) # 1 based indexing for time
         offset = random.randrange(time_overflow, slot.section.duration)
         time = preferred_slot.time - offset
         slot.datetime = DateTimeSlot(day, time)
@@ -43,7 +43,7 @@ def mutate(slots, days_per_week, slots_per_day, room_list):
         random_slot = utils.generate_random_slot(days_per_week, slots_per_day)
         day = random_slot.day
         # Overflow of section outside the available hours
-        time_overflow = max((random_slot.time + slot.section.duration) - slots_per_day, 0)
+        time_overflow = max((random_slot.time + slot.section.duration) - 1 - slots_per_day, 0) # 1 based indexing for time
         offset = random.randrange(time_overflow, slot.section.duration)
         time = random_slot.time - offset
         slot.datetime = DateTimeSlot(day, time)
