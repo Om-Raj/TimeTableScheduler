@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from scheduler.organization.models import Organization
 from scheduler.timetable.tasks import run_scheduler_task
 
-from .models import TimeTable, Section, Slot, ScheduleStatus
+from .models import TimeTable, Section, Slot, ScheduleStatus, Faculty, Group, Course
 from .forms import RunSchedulerForm
 
 # helper function to get timetable object
@@ -51,21 +51,40 @@ class SectionCreateView(CreateView):
     fields = ('faculty', 'course', 'group', 'duration')
     template_name = 'scheduler/section/create.html'
 
+    def get_organization(self):
+        return get_object_or_404(Organization, id=self.kwargs['org_id'])
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        org = self.get_organization()
+        # Limit each dropdown to this org’s items
+        form.fields['faculty'].queryset = Faculty.objects.filter(organization=org)
+        form.fields['course'].queryset  = Course.objects.filter(organization=org)
+        form.fields['group'].queryset   = Group.objects.filter(organization=org)
+        return form
+
     def form_valid(self, form):
-        timetable_id = self.kwargs['timetable_id']
-        timetable = get_object_or_404(TimeTable, timetable_id=timetable_id)
+        timetable = get_object_or_404(
+            TimeTable,
+            timetable_id=self.kwargs['timetable_id']
+        )
         form.instance.timetable = timetable
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse_lazy('timetable_detail', kwargs={'org_id': self.kwargs['org_id'], 'timetable_id': self.kwargs['timetable_id']})
-    
     def get_context_data(self, **kwargs):
-        """Pass organization ID and timetable ID to the template context"""
         context = super().get_context_data(**kwargs)
-        context['org_id'] = self.kwargs['org_id']
+        context['org_id']       = self.kwargs['org_id']
         context['timetable_id'] = self.kwargs['timetable_id']
         return context
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'timetable_detail',
+            kwargs={
+                'org_id': self.kwargs['org_id'],
+                'timetable_id': self.kwargs['timetable_id']
+            }
+        )
 
 class TimeTableCreateView(CreateView):
     model = TimeTable
