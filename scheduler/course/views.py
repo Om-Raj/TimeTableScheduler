@@ -1,11 +1,9 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 
 from .models import Course
 from scheduler.organization.models import Organization
-from .models import Room
 
 # helper function to get course object
 def get_course_object(self, queryset = None):
@@ -44,17 +42,6 @@ class CourseCreateView(CreateView):
     template_name = 'scheduler/course/create.html'
     fields = ('course_id', 'title', 'rooms')
 
-    def get_organization(self):
-        return get_object_or_404(Organization, id=self.kwargs['org_id'])
-    
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        org = self.get_organization()
-        form.fields['rooms'].queryset = Room.objects.filter(
-            organization=org
-        )
-        return form
-
     def get_success_url(self):
         return get_course_success_url(self)
 
@@ -87,17 +74,6 @@ class CourseUpdateView(UpdateView):
     model = Course
     template_name = 'scheduler/course/update.html'
     fields = ('course_id', 'title', 'rooms')
-
-    def get_organization(self):
-        return get_object_or_404(Organization, id=self.kwargs['org_id'])
-    
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        org = self.get_organization()
-        form.fields['rooms'].queryset = Room.objects.filter(
-            organization=org
-        )
-        return form
 
     def get_object(self, queryset = None):
         return get_course_object(self, queryset=queryset)

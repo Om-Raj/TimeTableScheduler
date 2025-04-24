@@ -32,7 +32,7 @@
     <h3 class="mt-5">📌 Scheduled Timetable</h3>
 
     <div>
-    {% for group, timetable in group_timetable.items %}
+    {% for group, table_faculty_list in group_timetable.items %}
         <h4 class="mt-4">{{ group.group_id }}</h4>
         <div class="table-responsive mb-5">
             <table class="table table-bordered text-center align-middle">
@@ -50,7 +50,7 @@
                         <th class="table-secondary">{{ day }}</th>
                         {% for time in time_slots %}
                             <td>
-                                {% with slot=timetable|dict_get:day|dict_get:time %}
+                                {% with slot=table_faculty_list.table|dict_get:day|dict_get:time %}
                                     {% if slot %}
                                         <strong>{{ slot.section.course.course_id }}</strong><br>
                                         {{ slot.section.faculty.faculty_id }}<br>
@@ -68,7 +68,7 @@
         </div>
         <h4>Faculty List</h4>
         <ul>
-            {% for faculty in faculty_list %}
+            {% for faculty in table_faculty_list.faculty_list %}
             <li>{{ faculty.faculty_id }} - {{ faculty.name }}</li>
             {% endfor %}
         </ul>
