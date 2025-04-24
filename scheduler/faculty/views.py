@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Faculty
 from scheduler.organization.models import Organization  
+from scheduler.models import DateTimeSlot
 
 class FacultyListView(ListView):
     model = Faculty
@@ -27,16 +28,25 @@ class FacultyCreateView(CreateView):
     template_name = 'scheduler/faculty/create.html'
     fields = ('faculty_id', 'name', 'priority', 'slot_choices')
 
+    def get_organization(self):
+        return get_object_or_404(Organization, id=self.kwargs['org_id'])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Add the current organization to the context
         context['organization'] = get_object_or_404(Organization, id=self.kwargs.get('org_id'))
         return context
+    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        org = self.get_organization()
+        form.fields['slot_choices'].queryset = DateTimeSlot.objects.filter(
+            organization=org
+        )
+        return form
 
     def form_valid(self, form):
-        # Attach the current organization to the new Faculty instance before saving
-        organization = get_object_or_404(Organization, id=self.kwargs.get('org_id'))
-        form.instance.organization = organization
+        form.instance.organization = self.get_organization()
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -78,11 +88,22 @@ class FacultyUpdateView(UpdateView):
     template_name = 'scheduler/faculty/update.html'
     fields = ('faculty_id', 'name', 'priority', 'slot_choices')
 
+    def get_organization(self):
+        return get_object_or_404(Organization, id=self.kwargs['org_id'])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Add the current organization to the context for use in the template
         context['organization'] = get_object_or_404(Organization, id=self.kwargs.get('org_id'))
         return context
+    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        org = self.get_organization()
+        form.fields['slot_choices'].queryset = DateTimeSlot.objects.filter(
+            organization=org
+        )
+        return form
 
     def get_success_url(self):
         # Redirect to the detail view after updating
