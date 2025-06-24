@@ -1,15 +1,34 @@
-{% extends "_base.html" %}
+{% extends "scheduler/base.html" %}
 
-{% block title %}Organizations{% endblock title %}
+{% block title %}Organizations{% endblock %}
 
 {% block content %}
-<h1 class="display-3">Your Organizations</h1>
-<a class="btn btn-success" href="{% url "org_create" %}">Create Organization</a>
-<ul>
-{% for object in object_list %}
-    <li>
-        <a href="{% url "org_detail" object.id %}">{{ object.name }}</a>
-    </li>
-{% endfor %}
-</ul>
-{% endblock content %}
+<div class="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Your Organizations</h1>
+    <a href="{% url 'org_create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      + Create Organization
+    </a>
+  </div>
+  {% if object_list %}
+    <div class="grid gap-6 sm:grid-cols-2">
+      {% for object in object_list %}
+        <a href="{% url 'org_detail' object.id %}" class="block p-6 bg-white rounded-xl shadow hover:shadow-lg transition border border-gray-100 hover:border-blue-300">
+          <h2 class="text-xl font-semibold text-gray-800">{{ object.name }}</h2>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-16">
+      <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+      <h3 class="mt-2 text-lg font-medium text-gray-900">No organizations found</h3>
+      <p class="mt-1 text-gray-500">Get started by creating your first organization.</p>
+      <div class="mt-6">
+        <a href="{% url 'org_create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          + Create Organization
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

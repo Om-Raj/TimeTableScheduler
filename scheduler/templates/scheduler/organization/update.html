@@ -1,14 +1,28 @@
-{% extends "_base.html" %}
-{% load crispy_forms_tags %}
-
-{% block title %}Update Organization{% endblock title %}
-
+{% extends "scheduler/base.html" %}
+{% block title %}Update Organization{% endblock %}
 {% block content %}
-<h1 class="display">Update Organization</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button class="btn btn-primary" type="submit">Update</button>
-</form>
-{% endblock content %}
+<div class="max-w-lg mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Update Organization</h1>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div>
+        <label for="id_name" class="block text-sm font-medium text-gray-700">Name</label>
+        <input type="text" name="name" id="id_name" value="{{ form.name.value|default_if_none:'' }}" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Enter organization name" required>
+      </div>
+      <div>
+        <label for="id_days_per_week" class="block text-sm font-medium text-gray-700">Days per week</label>
+        <input type="number" name="days_per_week" id="id_days_per_week" value="{{ form.days_per_week.value|default_if_none:'' }}" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="e.g. 5" min="1" max="7" required>
+        <p class="mt-1 text-xs text-gray-500">How many days per week does your organization operate?</p>
+      </div>
+      <div>
+        <label for="id_slots_per_day" class="block text-sm font-medium text-gray-700">Slots per day</label>
+        <input type="number" name="slots_per_day" id="id_slots_per_day" value="{{ form.slots_per_day.value|default_if_none:'' }}" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="e.g. 6" min="1" required>
+        <p class="mt-1 text-xs text-gray-500">How many periods/slots are there in a day?</p>
+      </div>
+      <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Update</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
 

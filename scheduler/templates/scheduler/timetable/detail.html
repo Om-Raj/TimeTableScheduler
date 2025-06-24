@@ -1,69 +1,72 @@
-{% extends "_base.html" %}
+{% extends "scheduler/base.html" %}
 
-{% block title %}{{ timetable.organization.name }}{% endblock title %}
+{% block title %}Timetable: {{ timetable.name }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="display-5 text-center">{{ timetable.organization.name }} - Time Table</h2>
-
-    <div class="card shadow-sm p-4 mt-4">
-        <h4 class="text-primary">Details</h4>
-        <p><strong>📅 Year:</strong> {{ timetable.year }}</p>
-        <p><strong>📖 Semester:</strong> {{ timetable.semester }}</p>
-        <a class="btn btn-danger" href="{% url "timetable_delete" org_id=timetable.organization.id timetable_id=timetable.timetable_id %}">Delete Timetable</a>
-    </div>
-
-    <a class="btn btn-success" href="{% url "timetable_schedule" org_id=timetable.organization.id timetable_id=timetable.timetable_id %}">Run Scheduler</a>
-
-    <div class="alert mt-3 {% if status.status == 'RUNNING' or status.status == 'PENDING' %}alert-warning{% elif status.status == 'SUCCESS' %}alert-success{% else %}alert-danger{% endif %}">
-        <strong>Status:</strong>
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ timetable }}</h1>
+                <p class="text-sm text-gray-500">Created on: {{ timetable.created_at|date:"F d, Y" }}</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
+                <a href="{% url 'timetable_schedule' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700">
+                    Run Scheduler
+                </a>
+                <a href="{% url 'timetable_result' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg shadow hover:bg-gray-700">
+                    View Results
+                </a>
+                <a href="{% url 'timetable_update' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="inline-flex items-center justify-center px-3 py-2 bg-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-300">Update</a>
+                <a href="{% url 'timetable_delete' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="inline-flex items-center justify-center px-3 py-2 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700">Delete</a>
+            </div>
+        </div>
+        
         {% if status %}
-            {% if status.status == 'RUNNING' or status.status == 'PENDING' %}
-                Scheduler is running...
-            {% elif status.status == 'SUCCESS' %}
-                Last run successful. <a href="{% url 'timetable_result' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="btn btn-sm btn-outline-primary">View Results</a>
-            {% else %}
-                Scheduler failed. Try again.
-            {% endif %}
-        {% else %}
-            No scheduler run yet.
+            <div class="mb-6 p-4 rounded-lg
+                {% if status.status == 'SUCCESS' %} bg-green-50 text-green-800
+                {% elif status.status == 'FAILURE' %} bg-red-50 text-red-800
+                {% elif status.status == 'PENDING' or status.status == 'RUNNING' %} bg-yellow-50 text-yellow-800
+                {% else %} bg-gray-50 text-gray-800
+                {% endif %}">
+                <p><span class="font-semibold">Scheduler Status:</span> {{ status.get_status_display }}</p>
+                <p class="text-sm">Last run: {{ status.last_run_at|date:"F d, Y, P" }}</p>
+            </div>
         {% endif %}
-    </div>
 
-    <h3 class="mt-5">📌 Created Sections</h3>
-
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>📚 Course</th>
-                    <th>👨‍🏫 Faculty</th>
-                    <th>🏢 Group</th>
-                    <th>⏳ Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for section in sections %}
-                <tr>
-                    <td>{{ section.course.course_id }}</td>
-                    <td>{{ section.faculty.name }}</td>
-                    <td>{{ section.group.group_id }}</td>
-                    <td>{{ section.duration }} hours</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center text-muted">No slots available for this timetable.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Add Section Button -->
-    <div class="d-flex justify-content-end">
-        <a href="{% url 'section_create' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Add Section
-        </a>
+        <div class="flex items-center justify-between mb-4 mt-6">
+            <h2 class="text-xl font-bold text-gray-800">Sections</h2>
+            <a href="{% url 'section_create' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700">+ Add Section</a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Group</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty</th>
+                        <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for section in sections %}
+                    <tr>
+                        <td class="py-4 px-4 whitespace-nowrap">{{ section.course.title }}</td>
+                        <td class="py-4 px-4 whitespace-nowrap">{{ section.group.group_id }}</td>
+                        <td class="py-4 px-4 whitespace-nowrap">{{ section.faculty.name }}</td>
+                        <td class="py-4 px-4 whitespace-nowrap">{{ section.duration }} slot(s)</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-10 text-gray-500">
+                            No sections found. <a href="{% url 'section_create' org_id=timetable.organization.id timetable_id=timetable.timetable_id %}" class="text-blue-600 hover:underline">Add the first section</a> to get started.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}

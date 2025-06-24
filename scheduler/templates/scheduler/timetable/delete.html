@@ -1,15 +1,20 @@
-{% extends "_base.html" %}
-{% load crispy_forms_tags %}
-
-{% block title %}Delete Organization{% endblock title %}
+{% extends "scheduler/base.html" %}
+{% block title %}Delete Timetable{% endblock %}
 
 {% block content %}
-<h1 class="display">Delete Organization</h1>
-<p>Are you sure you want to delete {{ object.name }}?</p>
-<form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button class="btn btn-danger" type="submit">Delete</button>
-</form>
-{% endblock content %}
+<div class="max-w-lg mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <h1 class="text-2xl font-bold text-gray-900 mb-4">Delete Timetable</h1>
+    <div class="mb-6">
+      <p class="text-red-700 font-semibold">Are you sure you want to delete timetable <span class="font-bold">{{ object.timetable_id }}</span>?</p>
+      <p class="text-gray-500 text-sm mt-2">This action cannot be undone.</p>
+    </div>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <button type="submit" class="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">Delete</button>
+      <a href="{% url 'timetable_detail' org_id=object.organization.id timetable_id=object.timetable_id %}" class="w-full inline-block text-center py-2 px-4 bg-gray-100 text-gray-700 font-semibold rounded-lg shadow hover:bg-gray-200">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
 

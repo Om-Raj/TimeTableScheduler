@@ -1,15 +1,34 @@
-{% extends "_base.html" %}
+{% extends "scheduler/base.html" %}
 
-{% block title %}Groups | {{ organization.name }}{% endblock title %}
+{% block title %}Groups{% endblock %}
 
 {% block content %}
-<h1 class="display-3">Groups</h1>
-<a class="btn btn-success" href="{% url "group_create" org_id=organization.id %}">Create Group</a>
-<ul>
-{% for object in object_list %}
-    <li>
-        <a href="{% url "group_detail" org_id=organization.id group_id=object.group_id  %}">{{ object.group_id }}</a>
-    </li>
-{% endfor %}
-</ul>
-{% endblock content %}
+<div class="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Groups</h1>
+    <a href="{% url 'group_create' org_id=organization.id %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      + Create Group
+    </a>
+  </div>
+  {% if object_list %}
+    <div class="grid gap-6 sm:grid-cols-2">
+      {% for object in object_list %}
+        <a href="{% url 'group_detail' org_id=organization.id group_id=object.group_id %}" class="block p-6 bg-white rounded-xl shadow hover:shadow-lg transition border border-gray-100 hover:border-blue-300">
+          <h2 class="text-xl font-semibold text-gray-800">{{ object.group_id }}</h2>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-16">
+      <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+      <h3 class="mt-2 text-lg font-medium text-gray-900">No groups found</h3>
+      <p class="mt-1 text-gray-500">Get started by creating your first group.</p>
+      <div class="mt-6">
+        <a href="{% url 'group_create' org_id=organization.id %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          + Create Group
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

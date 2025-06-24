@@ -1,13 +1,27 @@
-{% extends "_base.html" %}
+{% extends "scheduler/base.html" %}
 
-{% block title %} {{ object.room_id }}{% endblock title %}
+{% block title %}{{ object.room_id }}{% endblock %}
 
 {% block content %}
-<h1 class="display">{{ object.room_id }}</h1>
-<a class="btn btn-primary" href="{% url "room_update" org_id=object.organization.id room_id=object.room_id%}">Update</a>
-<a class="btn btn-danger" href="{% url "room_delete" org_id=object.organization.id room_id=object.room_id %}">Delete</a> 
-<p>Capacity : {{ object.capacity }}</p>
-
-<p>Lab : {% if object.is_lab %}Yes{% else %}No{% endif %}</p>
-
-{% endblock content %}
+<div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold text-gray-900">{{ object.room_id }}</h1>
+      <div class="flex gap-2">
+        <a href="{% url 'room_update' org_id=object.organization.id room_id=object.room_id %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg shadow hover:bg-blue-700">Update</a>
+        <a href="{% url 'room_delete' org_id=object.organization.id room_id=object.room_id %}" class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg shadow hover:bg-red-700">Delete</a>
+      </div>
+    </div>
+    <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Capacity</dt>
+        <dd class="mt-1 text-sm text-gray-900">{{ object.capacity }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Is Lab</dt>
+        <dd class="mt-1 text-sm text-gray-900">{{ object.is_lab }}</dd>
+      </div>
+    </dl>
+  </div>
+</div>
+{% endblock %}

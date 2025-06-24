@@ -1,14 +1,37 @@
-{% extends "_base.html" %}
-{% load crispy_forms_tags %}
-
-{% block title %}Create Faculty{% endblock title %}
+{% extends "scheduler/base.html" %}
+{% block title %}Create Faculty{% endblock %}
 
 {% block content %}
-<h1 class="display">Create Faculty</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button class="btn btn-success" type="submit">Create</button>
-</form>
-{% endblock content %}
+<div class="max-w-lg mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Create Faculty</h1>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div>
+        <label for="id_faculty_id" class="block text-sm font-medium text-gray-700">Faculty ID</label>
+        <input type="text" name="faculty_id" id="id_faculty_id" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="e.g. F001" required>
+      </div>
+      <div>
+        <label for="id_name" class="block text-sm font-medium text-gray-700">Name</label>
+        <input type="text" name="name" id="id_name" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="e.g. Dr. John Doe" required>
+      </div>
+      <div>
+        <label for="id_priority" class="block text-sm font-medium text-gray-700">Priority</label>
+        <input type="number" name="priority" id="id_priority" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Higher number means higher priority" required>
+        <p class="mt-1 text-xs text-gray-500">A higher number indicates a higher scheduling priority.</p>
+      </div>
+      <div>
+        <label for="id_slot_choices" class="block text-sm font-medium text-gray-700">Available Slots</label>
+        <select multiple name="slot_choices" id="id_slot_choices" class="mt-1 block w-full h-40 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+          {% for slot in form.fields.slot_choices.queryset %}
+            <option value="{{ slot.pk }}">{{ slot }}</option>
+          {% endfor %}
+        </select>
+        <p class="mt-1 text-xs text-gray-500">Select all time slots when this faculty member is available.</p>
+      </div>
+      <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Create</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
 

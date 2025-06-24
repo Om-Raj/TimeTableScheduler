@@ -1,29 +1,37 @@
-{% extends "_base.html" %}
+{% extends "scheduler/base.html" %}
 
-{% block title %}{{ object.name }}{% endblock title %}
+{% block title %}{{ object.name }}{% endblock %}
 
 {% block content %}
-<h1 class="display">{{ object.name }}</h1>
-<a class="btn btn-primary" href="{% url "org_update" object.id %}">Update</a>
-<a class="btn btn-danger" href="{% url "org_delete" object.id %}">Delete</a>
-<p>Days per week = {{ object.days_per_week }}</p>
-<p>Slots per day = {{ object.slots_per_day }}</p>
-<h3>Entities</h3>
-<ul class='my-3'>
-    <li>
-        <a href="{% url "course_list" object.id %}">Course</a>
-    </li>
-    <li>
-        <a href="{% url "faculty_list" object.id %}">Faculty</a>
-    </li>
-    <li>
-        <a href="{% url "group_list" object.id %}">Group</a>
-    </li>
-    <li>
-        <a href="{% url "room_list" object.id %}">Room</a>
-    </li>
-    <li>
-        <a href="{% url "timetable_list" object.id %}">Time table</a>
-    </li>
-</ul>
-{% endblock content %}
+<div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold text-gray-900">{{ object.name }}</h1>
+      <div class="flex gap-2">
+        <a href="{% url 'org_update' object.id %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg shadow hover:bg-blue-700">Update</a>
+        <a href="{% url 'org_delete' object.id %}" class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg shadow hover:bg-red-700">Delete</a>
+      </div>
+    </div>
+    <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Days per week</dt>
+        <dd class="mt-1 text-sm text-gray-900">{{ object.days_per_week }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Slots per day</dt>
+        <dd class="mt-1 text-sm text-gray-900">{{ object.slots_per_day }}</dd>
+      </div>
+    </dl>
+    <div class="mt-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">Entities</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <a href="{% url 'course_list' object.id %}" class="block px-4 py-2 bg-blue-50 rounded-lg text-blue-700 font-medium hover:bg-blue-100">Courses</a>
+        <a href="{% url 'faculty_list' object.id %}" class="block px-4 py-2 bg-green-50 rounded-lg text-green-700 font-medium hover:bg-green-100">Faculty</a>
+        <a href="{% url 'group_list' object.id %}" class="block px-4 py-2 bg-yellow-50 rounded-lg text-yellow-700 font-medium hover:bg-yellow-100">Groups</a>
+        <a href="{% url 'room_list' object.id %}" class="block px-4 py-2 bg-purple-50 rounded-lg text-purple-700 font-medium hover:bg-purple-100">Rooms</a>
+        <a href="{% url 'timetable_list' object.id %}" class="block px-4 py-2 bg-pink-50 rounded-lg text-pink-700 font-medium hover:bg-pink-100">Timetables</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

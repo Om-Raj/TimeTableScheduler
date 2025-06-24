@@ -1,20 +1,35 @@
-{% extends "_base.html" %}
+{% extends "scheduler/base.html" %}
 
-{% block title %}{{ object.course_id }}{% endblock title %}
+{% block title %}{{ object.course_id }}{% endblock %}
 
 {% block content %}
-<h1 class="display">{{ object.title }} - {{object.course_id}}</h1>
-{% with org=object.organization %}
-<a class="btn btn-primary" href="{% url "course_update" org_id=org.id course_id=object.course_id %}">Update</a>
-<a class="btn btn-danger" href="{% url "course_delete" org_id=org.id course_id=object.course_id %}">Delete</a>
-<p>Room: 
-{% if object.rooms.exists %}
-  {% for room in object.rooms.all %}
-    {{ room.room_id }} (Capacity: {{ room.capacity }}, Lab: {{ room.is_lab }})
-  {% endfor %}
-{% else %}
-No rooms assigned.
-{% endif %}
-</p>
-{% endwith %}
-{% endblock content %}
+<div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold text-gray-900">{{ object.course_id }}</h1>
+      <div class="flex gap-2">
+        <a href="{% url 'course_update' org_id=object.organization.id course_id=object.course_id %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg shadow hover:bg-blue-700">Update</a>
+        <a href="{% url 'course_delete' org_id=object.organization.id course_id=object.course_id %}" class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg shadow hover:bg-red-700">Delete</a>
+      </div>
+    </div>
+    <dl class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Title</dt>
+        <dd class="mt-1 text-sm text-gray-900">{{ object.title }}</dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Room</dt>
+        <dd class="mt-1 text-sm text-gray-900">
+          {% if object.rooms.exists %}
+            {% for room in object.rooms.all %}
+              {{ room.room_id }} (Capacity: {{ room.capacity }}, Lab: {{ room.is_lab }})
+            {% endfor %}
+          {% else %}
+            No rooms assigned.
+          {% endif %}
+        </dd>
+      </div>
+    </dl>
+  </div>
+</div>
+{% endblock %}

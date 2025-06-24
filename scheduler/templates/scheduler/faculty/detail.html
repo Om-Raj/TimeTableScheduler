@@ -1,26 +1,32 @@
-{% extends "_base.html" %}
+{% extends "scheduler/base.html" %}
 
-{% block title %}{{ object.name }}{% endblock title %}
+{% block title %}{{ object.name }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <h1 class="display-4">{{ object.name }}</h1>
-  <p><strong>Faculty ID:</strong> {{ object.faculty_id }}</p>
-  <p><strong>Priority:</strong> {{ object.priority }}</p>
-  <div class="mt-4">
-    <h3>Slot Choices</h3>
-    <ul class="list-group">
-      {% for slot in object.slot_choices.all %}
-        <li class="list-group-item">{{ slot }}</li>
-      {% empty %}
-        <li class="list-group-item">No slot choices available.</li>
-      {% endfor %}
-    </ul>
-  </div>
-  <div class="mt-4">
-    <a class="btn btn-primary" href="{% url 'faculty_update' org_id=organization.id pk=object.id %}">Update</a>
-    <a class="btn btn-danger" href="{% url 'faculty_delete' org_id=organization.id pk=object.id %}">Delete</a>
-    <a class="btn btn-danger" href="{% url 'faculty_list' org_id=organization.id %}">Back to Faculty List</a>
+<div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold text-gray-900">{{ object.name }}</h1>
+      <div class="flex gap-2">
+        <a href="{% url 'faculty_update' org_id=object.organization.id pk=object.id %}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg shadow hover:bg-blue-700">Update</a>
+        <a href="{% url 'faculty_delete' org_id=object.organization.id pk=object.id %}" class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg shadow hover:bg-red-700">Delete</a>
+      </div>
+    </div>
+    <p><strong>Faculty ID:</strong> {{ object.faculty_id }}</p>
+    <p><strong>Priority:</strong> {{ object.priority }}</p>
+    <div class="mt-4">
+      <h3>Slot Choices</h3>
+      <ul class="list-group">
+        {% for slot in object.slot_choices.all %}
+          <li class="list-group-item">{{ slot }}</li>
+        {% empty %}
+          <li class="list-group-item">No slot choices available.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="mt-4">
+      <a class="btn btn-danger" href="{% url 'faculty_list' org_id=object.organization.id %}">Back to Faculty List</a>
+    </div>
   </div>
 </div>
-{% endblock content %}
+{% endblock %}

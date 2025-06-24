@@ -2,5 +2,6 @@ from django import template
 register = template.Library()
 
 @register.filter
-def dict_get(d, key):
-    return d.get(key)
+def get_item(dictionary, key):
+    """Allows accessing dictionary items with a variable key in Django templates."""
+    return dictionary.get(key)

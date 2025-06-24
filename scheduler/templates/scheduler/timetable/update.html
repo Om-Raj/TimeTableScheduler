@@ -1,14 +1,25 @@
-{% extends "_base.html" %}
-{% load crispy_forms_tags %}
-
-{% block title %}Update Organization{% endblock title %}
+{% extends "scheduler/base.html" %}
+{% block title %}Update Timetable{% endblock %}
 
 {% block content %}
-<h1 class="display">Update Organization</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button class="btn btn-primary" type="submit">Update</button>
-</form>
-{% endblock content %}
+<div class="max-w-lg mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Update Timetable</h1>
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div>
+        <label for="id_year" class="block text-sm font-medium text-gray-700">Year</label>
+        <input type="number" name="year" id="id_year" value="{{ timetable.year }}" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required>
+        <p class="mt-1 text-xs text-gray-500">The academic year.</p>
+      </div>
+      <div>
+        <label for="id_semester" class="block text-sm font-medium text-gray-700">Semester</label>
+        <input type="number" name="semester" id="id_semester" value="{{ timetable.semester }}" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required>
+        <p class="mt-1 text-xs text-gray-500">The semester number for this timetable (e.g., 1 or 2).</p>
+      </div>
+      <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Update</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
 

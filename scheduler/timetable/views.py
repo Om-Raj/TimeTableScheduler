@@ -57,7 +57,7 @@ class SectionCreateView(CreateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         org = self.get_organization()
-        # Limit each dropdown to this org’s items
+        # Limit each dropdown to this org's items
         form.fields['faculty'].queryset = Faculty.objects.filter(organization=org)
         form.fields['course'].queryset  = Course.objects.filter(organization=org)
         form.fields['group'].queryset   = Group.objects.filter(organization=org)
@@ -175,38 +175,52 @@ class TimeTableResultView(DetailView):
     def get_queryset(self):
         return TimeTable.objects.select_related('organization')
 
-    def get_object(self, queryset = None):
+    def get_object(self, queryset=None):
         return get_timetable_object(self, queryset=queryset)
 
     def get_context_data(self, **kwargs):
-        """Add slots related to this timetable to the context."""
         context = super().get_context_data(**kwargs)
-        slots = Slot.objects.select_related('section__group', 'date_time_slot', 'room', 'section__course', 'section__faculty').filter(section__timetable=self.object)
+        # Fetch all slots for the current timetable, pre-loading related data
+        slots = Slot.objects.select_related(
+            'section__group', 'date_time_slot', 'room', 'section__course', 'section__faculty'
+        ).filter(section__timetable=self.object)
 
-        group_slots = defaultdict(set)
-        
+        # Group slots by the student group
+        group_slots = defaultdict(list)
         for slot in slots:
-            group_slots[slot.section.group].add(slot)
-           # faculty_list.add(slot.section.faculty)
+            group_slots[slot.section.group].append(slot)
 
+        # Prepare the data structure for the template
         organization = context['timetable'].organization
-        DAYS = range(1, organization.days_per_week + 1)
-        TIME = range(1, organization.slots_per_day + 1)
-        group_timetable = {}
+        days_range = range(1, organization.days_per_week + 1)
+        time_range = range(1, organization.slots_per_day + 1)
+        
+        processed_timetables = []
+        for group, group_slot_list in sorted(group_slots.items(), key=lambda item: item[0].group_id):
+            # Create an empty timetable grid for the group
+            table = {day: {time: None for time in time_range} for day in days_range}
+            
+            # Keep track of unique faculty for this group
+            faculty_set = set()
+            
+            # Populate the grid with scheduled slots
+            for slot in group_slot_list:
+                if slot.date_time_slot:
+                    day = slot.date_time_slot.day
+                    time = slot.date_time_slot.time
+                    if day in table and time in table[day]:
+                        table[day][time] = slot
+                        if slot.section.faculty:
+                            faculty_set.add(slot.section.faculty)
+            
+            processed_timetables.append({
+                'group': group,
+                'table': table,
+                'faculty_list': sorted(list(faculty_set), key=lambda f: f.name)
+            })
 
-        for group, slots in group_slots.items():
-            table = {day: {time: None for time in TIME} for day in DAYS}
-            faculty_list = set()
-            for slot in slots:
-                day = slot.date_time_slot.day
-                time = slot.date_time_slot.time
-                table[day][time] = slot
-                faculty_list.add(slot.section.faculty)
-            group_timetable[group] = {'table': table, 'faculty_list': faculty_list}
-
-        context['days'] = DAYS
-        context['time_slots'] = TIME
-        context['group_timetable'] = group_timetable
-        #context['faculty_list'] = faculty_list
-
+        context['days'] = days_range
+        context['time_slots'] = time_range
+        context['processed_timetables'] = processed_timetables
+        
         return context
