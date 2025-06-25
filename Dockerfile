@@ -21,8 +21,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code to the container
 COPY . .
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
-
 # Run Django development server (you can override this in production)
 CMD ["gunicorn", "website.wsgi:application", "--bind", "0.0.0.0:8000"]
