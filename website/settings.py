@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     # Local
-    'pages.apps.PagesConfig',
     'scheduler.apps.SchedulerConfig',
     #our apps
     "scheduler.organization",
@@ -162,8 +161,8 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'scheduler_home'
+LOGOUT_REDIRECT_URL = 'scheduler_home'
 
 
 # crispy forms config
