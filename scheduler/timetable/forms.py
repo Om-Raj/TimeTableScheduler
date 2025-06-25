@@ -1,4 +1,5 @@
 from django import forms
+from website.settings import ALGO_TIME_LIMIT
 
 class RunSchedulerForm(forms.Form):
     confirm = forms.BooleanField(
@@ -7,6 +8,6 @@ class RunSchedulerForm(forms.Form):
     )
     time_limit = forms.IntegerField(
         required=True,
-        label="Time limit (in seconds)",
+        label=f"Time limit (Max: {ALGO_TIME_LIMIT} seconds)",
         initial=10
     )

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +28,12 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DJANGO_DEBUG', cast=bool)
 
-ALLOWED_HOSTS = []
+# Maximum time limit for a algorithm in seconds
+ALGO_TIME_LIMIT = config('ALGO_TIME_LIMIT', cast=int)
+
+
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
+
 
 
 # Application definition
@@ -39,11 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third party
-    # 'allauth',
-    # 'allauth.account',
-    # 'crispy_forms',
-    # 'crispy_bootstrap5',
     # Local
     'scheduler.apps.SchedulerConfig',
     #our apps
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,8 +65,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # Add allauth account middleware
-    # "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'website.urls'
@@ -85,20 +85,6 @@ TEMPLATES = [
     },
 ]
 
-# Allauth settings
-# AUTHENTICATION_BACKENDS = [
-#     'django.contrib.auth.backends.ModelBackend',
-#     'allauth.account.auth_backends.AuthenticationBackend',
-# ]
-
-# LOGIN_REDIRECT_URL = 'scheduler_home'
-# LOGOUT_REDIRECT_URL = 'scheduler_home'
-# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-# ACCOUNT_EMAIL_REQUIRED = True
-
-# Crispy forms
-# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-# CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 WSGI_APPLICATION = 'website.wsgi.application'
 
@@ -159,26 +145,14 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# allauth config
-# ACCOUNT_LOGIN_METHODS = { 'email' }
-# ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-# Console email backend (for development)
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
-# LOGIN_REDIRECT_URL = 'scheduler_home'
-# LOGOUT_REDIRECT_URL = 'scheduler_home'
-
-
-# crispy forms config
-# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-# CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 # Celery config
