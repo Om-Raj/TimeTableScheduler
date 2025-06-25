@@ -58,6 +58,7 @@ class Scheduler():
     def __init__(self, **kwargs):
         self.org_id = kwargs['org_id']
         self.timetable_id = kwargs['timetable_id']
+        self.time_limit = kwargs['time_limit']
 
     def run(self):
         start_time = datetime.datetime.now()
@@ -103,8 +104,7 @@ class Scheduler():
         scheduler = genetic.GeneticAlgorithm(fnGetFitness, fnCreate, fnMutate, fnDisplay, max_age)
 
         optimal_fitness = Fitness(0, 0, 0, 1, 1)
-        time_limit = 10
-        best = scheduler.get_best(optimal_fitness, time_limit)
+        best = scheduler.get_best(optimal_fitness, self.time_limit)
 
         print(best.fitness)
 

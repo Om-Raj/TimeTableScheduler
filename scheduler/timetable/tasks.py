@@ -4,7 +4,7 @@ from scheduler.algorithm.scheduler import Scheduler
 from .models import TimeTable, ScheduleStatus
 
 @shared_task(bind=True)
-def run_scheduler_task(self, org_id, timetable_id):
+def run_scheduler_task(self, org_id, timetable_id, time_limit):
     try:
         timetable = TimeTable.objects.get(timetable_id=timetable_id, organization__id=org_id)
         status, _ = ScheduleStatus.objects.get_or_create(timetable=timetable)
@@ -12,7 +12,7 @@ def run_scheduler_task(self, org_id, timetable_id):
         status.task_id = self.request.id
         status.save()
 
-        scheduler = Scheduler(org_id=org_id, timetable_id=timetable_id)
+        scheduler = Scheduler(org_id=org_id, timetable_id=timetable_id, time_limit=time_limit)
         scheduler.run()
 
         status.status = "SUCCESS"

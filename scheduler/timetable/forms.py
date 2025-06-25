@@ -4,5 +4,9 @@ class RunSchedulerForm(forms.Form):
     confirm = forms.BooleanField(
         required=True,
         label="Confirm running the scheduler",
-        help_text="This will assign slots to all sections in the timetable."
+    )
+    time_limit = forms.IntegerField(
+        required=True,
+        label="Time limit (in seconds)",
+        initial=10
     )

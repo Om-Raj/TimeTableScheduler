@@ -156,7 +156,8 @@ class TimeTableScheduleView(OrganizationContextMixin, FormView):
     def form_valid(self, form):
         org_id = self.kwargs['org_id']
         timetable_id = self.kwargs['timetable_id']
-        task = run_scheduler_task.delay(org_id, timetable_id)
+        time_limit = form.cleaned_data['time_limit']
+        task = run_scheduler_task.delay(org_id, timetable_id, time_limit)
 
         timetable = get_object_or_404(
             TimeTable,
