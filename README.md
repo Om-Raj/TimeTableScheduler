@@ -2,6 +2,11 @@
 
 A web-based application for university timetable scheduling using a Genetic Algorithm. Built with Django, PostgreSQL, Celery, Redis, and Docker.
 
+## Live Demo
+[Smart Timetable Scheduler](https://smart-tts.onrender.com/)
+
+_Live scheduling unavailable due to hosting costs_
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/) / Docker Desktop installed on your system.
