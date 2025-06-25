@@ -70,6 +70,10 @@ class Scheduler():
         faculty_list = utils.get_faculties(org_id=org_id)
         group_count, sections = utils.get_group_count_and_sections(org_id=org_id, timetable_id=timetable_id)
 
+        if group_count == 0 or not sections:
+            raise ValueError(
+                "Scheduling aborted: the timetable has no sections. Add at least one section before running the scheduler."
+            )
 
         print(f"Group Count: {group_count}")
 

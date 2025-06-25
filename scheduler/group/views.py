@@ -1,9 +1,10 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
-from django.urls import reverse, reverse_lazy
-from django.http import Http404
+from django.urls import reverse
+from django.shortcuts import get_object_or_404
 
 from .models import Group
 from scheduler.organization.models import Organization
+from scheduler.mixins import OrganizationContextMixin
 
 
 # helper function to get group object
@@ -26,62 +27,65 @@ def get_group_success_url(self):
     })
 
 
-class GroupListView(ListView):
+class GroupListView(OrganizationContextMixin, ListView):
     model = Group
     template_name = 'scheduler/group/list.html'
 
     def get_queryset(self):
-        org_id = self.kwargs['org_id']
-        return Group.objects.filter(organization__id=org_id)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization'] = Organization.objects.get(id=self.kwargs['org_id'])
-        return context
+        return Group.objects.filter(organization__id=self.kwargs['org_id'])
 
 
-class GroupCreateView(CreateView):
+class GroupCreateView(OrganizationContextMixin, CreateView):
     model = Group
     template_name = 'scheduler/group/create.html'
     fields = ('group_id', 'size')
 
-    def get_success_url(self):
-        return get_group_success_url(self)
-
     def form_valid(self, form):
-        org_id = self.kwargs['org_id']
-        form.instance.organization = Organization.objects.get(id=org_id)
+        form.instance.organization = get_object_or_404(Organization, id=self.kwargs['org_id'])
         return super().form_valid(form)
-    
+
+    def get_success_url(self):
+        return reverse('group_detail', kwargs={
+            'org_id': self.object.organization.id,
+            'group_id': self.object.group_id
+        })
 
 
-class GroupDetailView(DetailView):
+class GroupDetailView(OrganizationContextMixin, DetailView):
     model = Group
     template_name = 'scheduler/group/detail.html'
+    slug_url_kwarg = 'group_id'
+    slug_field = 'group_id'
 
-    def get_object(self, queryset = None):
-        return get_group_object(self, queryset=queryset)
+    def get_queryset(self):
+        return super().get_queryset().filter(organization_id=self.kwargs['org_id'])
 
 
-class GroupDeleteView(DeleteView):
+class GroupDeleteView(OrganizationContextMixin, DeleteView):
     model = Group
     template_name = 'scheduler/group/delete.html'
+    slug_url_kwarg = 'group_id'
+    slug_field = 'group_id'
 
-    def get_object(self, queryset = None):
-        return get_group_object(self, queryset=queryset)
+    def get_queryset(self):
+        return super().get_queryset().filter(organization_id=self.kwargs['org_id'])
 
     def get_success_url(self):
         return reverse('group_list', kwargs={'org_id': self.kwargs['org_id']})
 
 
-
-class GroupUpdateView(UpdateView):
+class GroupUpdateView(OrganizationContextMixin, UpdateView):
     model = Group
     template_name = 'scheduler/group/update.html'
-    fields = ('group_id', 'size')
+    fields = ('size',)
+    slug_url_kwarg = 'group_id'
+    slug_field = 'group_id'
 
-    def get_object(self, queryset = None):
-        return get_group_object(self, queryset=queryset)
+    def get_queryset(self):
+        return super().get_queryset().filter(organization_id=self.kwargs['org_id'])
 
     def get_success_url(self):
-        return get_group_success_url(self)
+        return reverse('group_detail', kwargs={
+            'org_id': self.object.organization.id,
+            'group_id': self.object.group_id
+        })

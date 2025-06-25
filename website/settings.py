@@ -40,10 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third party
-    'allauth',
-    'allauth.account',
-    'crispy_forms',
-    'crispy_bootstrap5',
+    # 'allauth',
+    # 'allauth.account',
+    # 'crispy_forms',
+    # 'crispy_bootstrap5',
     # Local
     'scheduler.apps.SchedulerConfig',
     #our apps
@@ -64,7 +64,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Add allauth account middleware
-    "allauth.account.middleware.AccountMiddleware",
+    # "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'website.urls'
@@ -85,13 +85,20 @@ TEMPLATES = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
-    'django.contrib.auth.backends.ModelBackend',
+# Allauth settings
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'allauth.account.auth_backends.AuthenticationBackend',
+# ]
 
-    # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
+# LOGIN_REDIRECT_URL = 'scheduler_home'
+# LOGOUT_REDIRECT_URL = 'scheduler_home'
+# ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+# ACCOUNT_EMAIL_REQUIRED = True
+
+# Crispy forms
+# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+# CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 WSGI_APPLICATION = 'website.wsgi.application'
 
@@ -148,6 +155,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -155,20 +166,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # allauth config
-ACCOUNT_LOGIN_METHODS = { 'email' }
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+# ACCOUNT_LOGIN_METHODS = { 'email' }
+# ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 # Console email backend (for development)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
-LOGIN_REDIRECT_URL = 'scheduler_home'
-LOGOUT_REDIRECT_URL = 'scheduler_home'
+# LOGIN_REDIRECT_URL = 'scheduler_home'
+# LOGOUT_REDIRECT_URL = 'scheduler_home'
 
 
 # crispy forms config
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+# CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 # Celery config
