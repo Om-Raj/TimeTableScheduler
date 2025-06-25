@@ -32,7 +32,7 @@ DEBUG = config('DJANGO_DEBUG', cast=bool)
 ALGO_TIME_LIMIT = config('ALGO_TIME_LIMIT', cast=int)
 
 
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='*').split(',')
 
 
 
